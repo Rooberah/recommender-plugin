@@ -10,14 +10,14 @@
  * @wordpress-plugin
  * Plugin Name:       recommender
  * Description:       This Plugins recommends stuff to your users
- * Version:           0.1.1
+ * Version:           0.1.2
  */
 
 namespace Recommender;
 
 if (!defined('RECOMMENDER_PLUGIN_PATH')) {
     define('RECOMMENDER_PLUGIN_PATH', dirname(__FILE__).'/');
-    define('RECOMMENDER_PLUGIN_VERSION', '0.1.1');
+    define('RECOMMENDER_PLUGIN_VERSION', '0.1.2');
 }
 
 

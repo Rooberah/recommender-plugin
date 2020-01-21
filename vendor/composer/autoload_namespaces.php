@@ -11,5 +11,4 @@ return array(
     'Requests' => array($vendorDir . '/rmccue/requests/library'),
     'Oxymel' => array($vendorDir . '/nb/oxymel'),
     'Mustache' => array($vendorDir . '/mustache/mustache/src'),
-    'Mockery' => array($vendorDir . '/mockery/mockery/library'),
 );

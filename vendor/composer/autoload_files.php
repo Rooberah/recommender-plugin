@@ -22,7 +22,6 @@ return array(
     '30cbb6e4122dc988e494c6b9c0438233' => $vendorDir . '/wp-cli/import-command/import-command.php',
     '5e099d3cac677dd2bec1003ea7707745' => $vendorDir . '/wp-cli/media-command/media-command.php',
     'ac949ce40a981819ba132473518a9a31' => $vendorDir . '/wp-cli/wp-config-transformer/src/WPConfigTransformer.php',
-    '6124b4c8570aa390c21fafd04a26c69f' => $vendorDir . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
     '5deaf6ce9c8bbdfb65104c7e938d5875' => $vendorDir . '/wp-cli/config-command/config-command.php',
     '68c39b88215b6cf7a0da164166670ef9' => $vendorDir . '/wp-cli/core-command/core-command.php',
     '7654e00bf0e632580764400bd8293a9c' => $vendorDir . '/wp-cli/cron-command/cron-command.php',
@@ -38,5 +37,4 @@ return array(
     '129d58fa8151374aceb8571bcaa97504' => $vendorDir . '/wp-cli/shell-command/shell-command.php',
     '8519779bbb65eeb842af2f629ce7b6f8' => $vendorDir . '/wp-cli/super-admin-command/super-admin-command.php',
     '1f05372afcc7d0c51a305cef1d56dd01' => $vendorDir . '/wp-cli/widget-command/widget-command.php',
-    '125bba9b2a34259a2ab4c8f405781876' => $vendorDir . '/php-mock/php-mock-phpunit/autoload.php',
 );
