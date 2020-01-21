@@ -1,0 +1,44 @@
+# Select what we should cache
+cache:
+  paths:
+  - vendor/
+
+services:
+  - mysql:5.7
+
+before_script:
+# Install git, the php image doesn't have installed
+- apt-get update -yqq
+- apt-get install git -yqq
+
+# instll the required packages for the running CI tests
+- apt-get -yqqf install vim wget zip unzip subversion default-mysql-client libmcrypt-dev default-libmysqlclient-dev --fix-missing
+
+# Install mysql driver
+- docker-php-ext-install mysqli pdo_mysql mbstring
+
+# Install Xdebug
+- pecl install xdebug
+
+# PHP extensions
+- docker-php-ext-enable mysqli pdo_mysql mbstring xdebug
+
+# Install composer
+- curl -sS https://getcomposer.org/installer | php
+
+# Install all project dependencies
+- php composer.phar install
+
+- bash bin/install-wp-tests.sh wordpress_test root mysql mysql $WP_VERSION
+
+variables:
+  # Configure mysql service (https://hub.docker.com/_/mysql/)
+  MYSQL_DATABASE: wordpress_tests
+  MYSQL_ROOT_PASSWORD: mysql
+  WP_VERSION: latest
+  WP_MULTISITE: "0"
+
+test:php7.2:
+  image: php:7.2
+  script:
+  - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover --colors=never
