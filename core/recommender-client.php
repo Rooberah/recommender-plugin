@@ -35,19 +35,21 @@ class RecommenderClient
     const TIMEOUT = 3;
     const HTTPVERSION = '1.1';
     // const EVENTS_URL = 'https://localhost/v1/events';
-    const EVENTS_URL = 'http://localhost:8000/core/api/v1/';
+    const EVENTS_URL = 'https://pinkorblue.info/recommender/api/core/api/v1/';
 
     /**
      * Sets client basic information
      */
-    public function __construct()
+    public function __construct($options = null)
     {
-        $options = get_option('recommender_api');
+        if (!$options) {
+            $options = get_option('recommender_options');
+        }
 
-        $this->site_name = get_bloginfo('url');
+        $this->site_name = wp_parse_url(get_bloginfo('url'))['host'];
 
-        $this->client_id = $options['client_id'];
-        $this->client_secret = $options['client_secret'];
+        $this->client_id = $options && array_key_exists('client_id', $options) ? $options['client_id'] : '';
+        $this->client_secret = $options && array_key_exists('client_secret', $options) ? $options['client_secret'] : '';
 
         global $wp_version;
         $this->user_agent = 'WordPress/' . $wp_version . ' - ' .
@@ -98,6 +100,105 @@ class RecommenderClient
         return $result;
     }
 
+    public function getRecommendationsForUserProduct($uid, $pid, $num_products = 4)
+    {
+        $url = self::EVENTS_URL . 'recommend/recommend_to_user_on_item/';
+
+        $response = wp_remote_post(
+            $url,
+            array(
+              'timeout' => self::TIMEOUT,
+              'httpversion' => self::HTTPVERSION,
+              'headers' => $this->getHeader(),
+              'body' => json_encode(
+                  [
+                    'site_name'    => $this->site_name,
+                    'user_id'      => $uid,
+                    'item_id'      => $pid,
+                    'num_products' => $num_products
+                  ]
+              )
+            )
+        );
+        if (is_wp_error($response)) {
+            error_log("[RECOMMENDER] --- Error getting recommendations for user on product page.");
+            error_log("[RECOMMENDER] --- " . $response->get_error_message());
+            return array();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code != 200) {
+            $error_body = wp_remote_retrieve_body($response);
+            error_log("[RECOMMENDER] --- Error getting recommendations for user on product page.");
+            error_log("[RECOMMENDER] --- ".$error_body);
+            return array();
+        }
+        return json_decode($response["body"], true)["recommendations"];
+    }
+    
+    public function getRecommendationsForUser($uid, $num_products = 4)
+    {
+        $url = self::EVENTS_URL . 'recommend/recommend_to_user/';
+
+        $response = wp_remote_post(
+            $url,
+            array(
+              'timeout' => self::TIMEOUT,
+              'httpversion' => self::HTTPVERSION,
+              'headers' => $this->getHeader(),
+              'body' => json_encode(
+                  [
+                    'site_name'    => $this->site_name,
+                    'user_id'      => $uid,
+                    'num_products' => $num_products
+                  ]
+              )
+            )
+        );
+        if (is_wp_error($response)) {
+            error_log("[RECOMMENDER] --- Error getting recommendations for user.");
+            error_log("[RECOMMENDER] --- " . $response->get_error_message());
+            return array();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code != 200) {
+            $error_body = wp_remote_retrieve_body($response);
+            error_log("[RECOMMENDER] --- Error getting recommendations for user.");
+            error_log("[RECOMMENDER] --- ".$error_body);
+            return array();
+        }
+        return json_decode($response["body"], true)["recommendations"];
+    }
+
+    public function getOverviewStatistics()
+    {
+        $url = self::EVENTS_URL . 'statistic/overview/?'.http_build_query(
+            array("site_name" => $this->site_name)
+        );
+        $response = wp_remote_get(
+            $url,
+            array(
+              'timeout' => self::TIMEOUT,
+              'httpversion' => self::HTTPVERSION,
+              'headers' => $this->getHeader()
+            )
+        );
+        if (is_wp_error($response)) {
+            error_log("[RECOMMENDER] --- Error getting overview statistics.");
+            error_log("[RECOMMENDER] --- " . $response->get_error_message());
+            return array();
+        }
+
+        $status_code = wp_remote_retrieve_response_code($response);
+        if ($status_code != 200) {
+            $error_body = wp_remote_retrieve_body($response);
+            error_log("[RECOMMENDER] --- Error getting overview statistics.");
+            error_log("[RECOMMENDER] --- ".$error_body);
+            return array();
+        }
+        return json_decode($response["body"], true);
+    }
     /**
      * Set a user entity
      *
@@ -118,7 +219,6 @@ class RecommenderClient
         }
 
         $url = self::EVENTS_URL . 'user/';
-
         $response = wp_remote_post(
             $url,
             array(
@@ -150,8 +250,6 @@ class RecommenderClient
 
         $url = self::EVENTS_URL . 'item/';
 
-        error_log($url . " " . $iid . " " . json_encode($properties));
-        
         $response = wp_remote_post(
             $url,
             array(
@@ -181,7 +279,6 @@ class RecommenderClient
         }
 
         $url = self::EVENTS_URL . 'interaction/';
-
         $response = wp_remote_post(
             $url,
             array(

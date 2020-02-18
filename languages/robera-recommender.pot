@@ -1,0 +1,67 @@
+# Copyright (C) 2020 
+# This file is distributed under the same license as the recommender plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: recommender 0.1.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recommender-plugin\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2020-02-11T09:52:04+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.3.0\n"
+"X-Domain: robera-recommender\n"
+
+#. Plugin Name of the plugin
+msgid "recommender"
+msgstr ""
+
+#. Description of the plugin
+msgid "This Plugins recommends stuff to your users"
+msgstr ""
+
+#: core/recommender-admin.php:74
+msgid "Robera Recommender"
+msgstr ""
+
+#: core/templates/settings-page.php:9
+msgid "Recommendation Statistics"
+msgstr ""
+
+#: core/templates/settings-page.php:14
+msgid "Recommendations"
+msgstr ""
+
+#: core/templates/settings-page.php:20
+msgid "Clicks"
+msgstr ""
+
+#: core/templates/settings-page.php:24
+msgid "Robera Recommender Settings"
+msgstr ""
+
+#: core/templates/settings-page.php:34
+msgid "Use recommendations for related products."
+msgstr ""
+
+#: core/templates/settings-page.php:37
+msgid "Submit"
+msgstr ""
+
+#: core/static/block.js:31
+msgid "Product Recommendation for User"
+msgstr ""
+
+#: core/static/block.js:57
+msgid "Number of products"
+msgstr ""
+
+#: core/static/block.js:70
+msgid "Here you will have a recommendation block for user with {0} columns. "
+msgstr ""
+
+#: core/static/block.js:73
+msgid "For changing number of columns use sidebar settings."
+msgstr ""

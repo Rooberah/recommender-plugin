@@ -10,14 +10,17 @@
  * @wordpress-plugin
  * Plugin Name:       recommender
  * Description:       This Plugins recommends stuff to your users
- * Version:           0.1.2
+ * Text Domain:       robera-recommender
+ * Version:           0.1.3
  */
 
 namespace Recommender;
 
 if (!defined('RECOMMENDER_PLUGIN_PATH')) {
     define('RECOMMENDER_PLUGIN_PATH', dirname(__FILE__).'/');
-    define('RECOMMENDER_PLUGIN_VERSION', '0.1.2');
+    define('RECOMMENDER_PLUGIN_FILE_PATH', __FILE__);
+    define('RECOMMENDER_PLUGIN_VERSION', '0.1.3');
+    define('RECOMMENDER_PLUGIN_PREFIX', 'recommender');
 }
 
 
@@ -28,35 +31,13 @@ $myUpdateChecker = \Puc_v4_Factory::buildUpdateChecker(
     'recommender-plugin'
 );
 
-require_once RECOMMENDER_PLUGIN_PATH.'core/hooks.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-plugin.php';
-
-function trySendingOnce($action, $func)
-{
-    $sent_option_key = 'recommender_api_sent_' . $action;
-    if (! get_option($sent_option_key)) {
-        update_option($sent_option_key, true);
-        try {
-            $func();
-        } catch (\Exception $e) {
-            error_log($e);
-            delete_option($sent_option_key);
-        }
-    }
-}
+require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-core.php';
+require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-admin.php';
 
 if (class_exists('\Recommender\RecommenderPlugin')) {
     $options = get_option('recommender_options');
     $recommender = new RecommenderPlugin($options);
-
-    add_action('admin_init', function () {
-        global $recommender;
-
-        trySendingOnce("users", [$recommender, "addAllUsersBackground"]);
-        trySendingOnce("products", [$recommender, "addAllProductsBackground"]);
-        trySendingOnce("orders", [$recommender, "addAllOrderItemsBackground"]);
-    });
+    $core = new RecommenderCore();
+    $admin = new RecommenderAdmin();
 }
-
-register_activation_hook(__FILE__, 'recommender_activate');
-register_deactivation_hook(__FILE__, 'recommender_deactivate');

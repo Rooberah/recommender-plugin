@@ -44,6 +44,45 @@ class IsGoodProductRequest extends \PHPUnit\Framework\Constraint\Constraint
         return 0;
     }
 }
+
+class IsGoodRecommendationProductRequest extends \PHPUnit\Framework\Constraint\Constraint
+{
+    private $id;
+
+    public function __construct($user_id, $item_id, $num_products)
+    {
+        parent::__construct();
+        $this->user_id = $user_id;
+        $this->item_id = $item_id;
+        $this->num_products = $num_products;
+    }
+
+    public function matches($other): bool
+    {
+        $body = json_decode($other['body'], true);
+        if ($body['user_id'] != $this->user_id || $body['item_id'] != $this->item_id ||
+                $body['num_products'] != $this->num_products) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Returns a string representation of the constraint.
+     */
+    public function toString(): string
+    {
+        return 'is product request ok';
+    }
+
+    /**
+     * Counts the number of constraint elements.
+     */
+    public function count(): int
+    {
+        return 0;
+    }
+}
 /**
  * Constraint that accepts any input value.
  */
@@ -152,6 +191,8 @@ class RecommenderTest extends \WP_UnitTestCase
         // Attempts to create the new product.
         $product->save();
         $order = new \WC_Order();
+        $order->set_status("completed");
+        $order->save();
 
         $ctp = new \WC_Order_Data_Store_CPT();
         $ctp->create($order);
@@ -165,6 +206,88 @@ class RecommenderTest extends \WP_UnitTestCase
         $order->add_item($order_item);
         $order->save();
         return $order;
+    }
+
+    public function testGetRecommendationsOnProduct()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->willReturn(array(
+            "body" => "{\"recommendations\": [33, 31, 32]}",
+            'response' => array(
+                'code' => 200
+            )
+        ));
+
+        $client = new RecommenderClient();
+
+        try {
+            $res = $client->getRecommendationsForUserProduct(0, "32", 3);
+            $this->assertEquals(count($res), 3);
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testGetRelatedIds()
+    {
+        $item_id = "32";
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->with(
+            $this->anything(),
+            new IsGoodRecommendationProductRequest(0, $item_id, 3)
+        )->willReturn(array(
+            "body" => "{\"recommendations\": [\"33\", \"31\", \"32\"]}",
+            'response' => array(
+                'code' => 200
+            )
+        ));
+
+        update_option(RecommenderPlugin::$RECOMMEND_ON_RELATED_PRODUCTS_OPTION_NAME, true);
+
+        $core = new RecommenderCore();
+
+        try {
+            $res = $core->getRelatedIds(["31", "34", "36"], $item_id, array(
+                "limit" => 3
+            ));
+            $this->assertEquals(count($res), 3);
+            $this->assertEquals($res, ["33", "31", "32"]);
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testGetRelatedIdsNotSet()
+    {
+        $item_id = "32";
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->never());
+
+        $core = new RecommenderCore();
+
+        try {
+            $related_passed = ["31", "34", "36"];
+            $res = $core->getRelatedIds($related_passed, $item_id, array(
+                "limit" => 3
+            ));
+            $this->assertEquals(count($res), 3);
+            $this->assertEquals($res, $related_passed);
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testGetRecommendationsOnProductError()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->willReturn(
+            new \WP_Error()
+        );
+
+        $client = new RecommenderClient();
+
+        try {
+            $res = $client->getRecommendationsForUserProduct(0, "32", 3);
+            $this->assertEquals(count($res), 0);
+        } catch (\WPDieException $e) {
+        }
     }
 
     public function testEventSchedules()
@@ -272,6 +395,41 @@ class RecommenderTest extends \WP_UnitTestCase
 
         try {
             $bg_user_copy->save()->handleCronHealthcheck();
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testGetRecommendations()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->willReturn(array(
+            "body" => "{\"recommendations\": [33, 31, 32, 34]}",
+            'response' => array(
+                'code' => 200
+            )
+        ));
+
+        $client = new RecommenderClient();
+
+        try {
+            $res = $client->getRecommendationsForUser(0, 4);
+            $this->assertEquals(count($res), 4);
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testGetRecommendationsError()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->willReturn(
+            new \WP_Error()
+        );
+
+        $client = new RecommenderClient();
+
+        try {
+            $res = $client->getRecommendationsForUser(0, 4);
+            $this->assertEquals(count($res), 0);
         } catch (\WPDieException $e) {
         }
     }

@@ -33,6 +33,10 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
         $order_item = new \WC_Order_Item_Product($item);
         $order = $order_item->get_order();
 
+        if ($order->get_status() != "completed") {
+            return false;
+        }
+
         // Send the order
         $user_id = $order->get_user_id();
 
@@ -46,7 +50,7 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
             'date_paid'           => $order->get_date_paid()
         );
 
-        $response = $this->client->sendInteraction($user_id, $order_item->get_product_id(), "order_" . $order->get_status(), $order_item->get_quantity(), $order->get_date_modified(), $properties);
+        $response = $this->client->sendInteraction($user_id, $order_item->get_product_id(), "purchase", $order_item->get_quantity(), $order->get_date_modified(), $properties);
 
         // check the response
         if (is_wp_error($response)) {

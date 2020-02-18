@@ -1,0 +1,70 @@
+# Copyright (C) 2020 
+# This file is distributed under the same license as the recommender plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: recommender\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recommender-"
+"plugin\n"
+"POT-Creation-Date: 2020-02-11T09:52:04+00:00\n"
+"PO-Revision-Date: 2020-02-09 19:52+0330\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fa\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"X-Domain: recommender-plugin\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. Plugin Name of the plugin
+msgid "recommender"
+msgstr "پیشنهاددهنده"
+
+#. Description of the plugin
+msgid "This Plugins recommends stuff to your users"
+msgstr "این افزونه به کاربر محصول‌های مرتبط را پیشنهاد می‌دهد."
+
+#: core/recommender-admin.php:74
+msgid "Robera Recommender"
+msgstr "توصیه‌گر روبه‌راه"
+
+#: core/templates/settings-page.php:9
+msgid "Recommendation Statistics"
+msgstr "آمار پیشنهادات"
+
+#: core/templates/settings-page.php:14
+msgid "Recommendations"
+msgstr "پیشنهاد"
+
+#: core/templates/settings-page.php:20
+msgid "Clicks"
+msgstr "کلیک"
+
+#: core/templates/settings-page.php:24
+msgid "Robera Recommender Settings"
+msgstr "تنظیمات پیشنهاددهندهٔ روبه‌راه"
+
+#: core/templates/settings-page.php:34
+msgid "Use recommendations for related products."
+msgstr "برای محصولات مشابه از پیشنهادهای هوشمند استفاده کن."
+
+#: core/templates/settings-page.php:37
+msgid "Submit"
+msgstr "ذخیره"
+
+#: core/static/block.js:31
+msgid "Product Recommendation for User"
+msgstr "پیشنهاد محصولات به کاربر"
+
+#: core/static/block.js:57
+msgid "Number of products"
+msgstr "تعداد محصول‌ها"
+
+#: core/static/block.js:70
+msgid "Here you will have a recommendation block for user with {0} columns. "
+msgstr "اینجا محصول‌های پیشنهادی به کاربر در {0} ستون قرار می‌گیرد."
+
+#: core/static/block.js:73
+msgid "For changing number of columns use sidebar settings."
+msgstr "برای تغییر تعداد ستون‌ها از نوار تنظیمات کنار استفاده کنید."
