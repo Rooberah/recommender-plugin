@@ -3,7 +3,6 @@
     "description": "Recommender plugin",
     "license": "GPL-3.0",
     "require" : {
-        "wp-cli/wp-cli-bundle": "^2.2"
     },
     "require-dev": {
     }
