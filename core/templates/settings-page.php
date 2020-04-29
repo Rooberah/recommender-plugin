@@ -20,6 +20,18 @@ namespace Recommender;
                     <div class="description"><?php esc_html_e("Clicks", "robera-recommender") ?></div>
                 </div>
             </div>
+            <div class="ui steps">
+                <div class="step" style="width: 12em">
+                    <div class="title"><?php echo $num_bought ?></div>
+                    <div class="description"><?php esc_html_e("Items bought", "robera-recommender") ?></div>
+                </div>
+            </div>
+            <div class="ui steps">
+                <div class="step" style="width: 12em">
+                    <div class="title"><?php echo wc_price($sum_bought_value) ?></div>
+                    <div class="description"><?php esc_html_e("Bought Value", "robera-recommender") ?></div>
+                </div>
+            </div>
             <h2 class="ui header">
                 <?php esc_html_e("Robera Recommender Settings", "robera-recommender")?>
             </h2>

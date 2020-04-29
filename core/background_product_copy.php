@@ -16,6 +16,29 @@ class RecommenderBackgroundProductCopy extends RecommenderBackgroundProcess
      */
     protected $action = 'product_copy';
 
+    public function addCandidateProduct($product_id)
+    {
+        $key = $this->identifier . '_candidates';
+        $arr = get_site_option($key) ? get_site_option($key) : array();
+        $arr[] = $product_id;
+        update_site_option($key, $arr);
+    }
+
+    public function checkProductIsCandidate($product_id)
+    {
+        $key = $this->identifier . '_candidates';
+        return in_array($product_id, get_site_option($key));
+    }
+
+    public function removeCandidateProduct($product_id)
+    {
+        $key = $this->identifier . '_candidates';
+        $arr = get_site_option($key) ? get_site_option($key) : array();
+        $index = array_search($product_id, $arr);
+        unset($arr[$index]);
+        update_site_option($key, $arr);
+    }
+
     /**
      * Task
      *
@@ -79,7 +102,7 @@ class RecommenderBackgroundProductCopy extends RecommenderBackgroundProcess
         $status_code = wp_remote_retrieve_response_code($response);
         if ($status_code != 201) {
             $error_body = wp_remote_retrieve_body($response);
-            error_log("[RECOMMENDER] --- Error adding a user.");
+            error_log("[RECOMMENDER] --- Error adding a product.");
             error_log("[RECOMMENDER] --- ".$error_body);
             if ($status_code != 400 || $error_body != '{"error":"Item is duplicated."}') {
                 error_log("[RECOMMENDER] --- Retring copy product ".$item);
@@ -97,7 +120,7 @@ class RecommenderBackgroundProductCopy extends RecommenderBackgroundProcess
      */
     protected function complete()
     {
-        error_log("complete");
+        error_log("complete sending products");
         parent::complete();
         // Show notice to user or perform some other arbitrary task...
     }

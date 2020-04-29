@@ -7,17 +7,25 @@
 		return tmp;
 	}
 
-	function send_click_event(url, site_name, user_id, item_id, product_id=null){
+	function send_click_event(url, site_name, user_id, item_id, product_id=null, interaction_id, jwt){
 		xmlhttp=new XMLHttpRequest();
 		xmlhttp.open("POST", url , false);
 		xmlhttp.setRequestHeader("Content-type", "application/json");
-		var data = {
+		xmlhttp.setRequestHeader("Authorization", `JWT ${jwt}`);
+        var date = new Date().toISOString();
+        console.log(date);
+
+        var data = {
 			'site_name': site_name,
 			'user_id': user_id,
-			'item_id': item_id
-		}
+			'item_id': item_id,
+			'interaction_id': interaction_id,
+			'interaction_value': 1,
+			'interaction_time': date,
+			'interaction_type': "click_on_recommended"
+		};
 		if(product_id != null)
-			data['product_id'] = product_id
+			data['product_id'] = product_id;
 
 		xmlhttp.send(JSON.stringify(data));
 	}
@@ -26,24 +34,33 @@
 		$('.recommender-block-class a').click(function(e){
 			clicked_product_id = get_clicked_product_id(this);
 			send_click_event(
-				recommender_info['click_event_url'],
+				recommender_info['interaction_url'],
 				recommender_info['site_name'],
 				recommender_info['user_id'],
-				clicked_product_id
-			)
-			
+				clicked_product_id,
+				null,
+				recommender_info['jwt_pool'][i]['interaction_id'],
+				recommender_info['jwt_pool'][i]['jwt'],
+			);
+			i++;
+
 		});
 		if(recommender_info['is_product']){
 			$('.related.products a').click(function(e){
 				clicked_product_id = get_clicked_product_id($(this));
 				send_click_event(
-					recommender_info['click_event_url'],
+					recommender_info['interaction_url'],
 					recommender_info['site_name'],
 					recommender_info['user_id'],
 					clicked_product_id,
-					recommender_info['product_id']
-				)
+					recommender_info['product_id'],
+					recommender_info['jwt_pool'][i]['interaction_id'],
+					recommender_info['jwt_pool'][i]['jwt'],
+				);
+				i++;
 			});
 		}
 	});
 }( jQuery3_1_1 ) );
+
+let i = 0;

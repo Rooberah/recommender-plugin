@@ -49,6 +49,7 @@ if (! class_exists('RecommenderBackgroundProcess')) {
             $this->client = new RecommenderClient();
             $this->cron_hook_identifier     = $this->identifier . '_cron';
             $this->cron_interval_identifier = $this->identifier . '_cron_interval';
+            $this->data = array();
             add_action($this->cron_hook_identifier, array( $this, 'handleCronHealthcheck' ));
             add_filter('cron_schedules', array( $this, 'scheduleCronHealthcheck' ));
         }
@@ -89,6 +90,7 @@ if (! class_exists('RecommenderBackgroundProcess')) {
             if (! empty($this->data)) {
                 update_site_option($key, $this->data);
             }
+            $this->data = array();
             return $this;
         }
         /**
@@ -268,27 +270,27 @@ if (! class_exists('RecommenderBackgroundProcess')) {
         protected function handle()
         {
             $this->lockProcess();
-            #do {
-            $batch = $this->getBatch();
-            foreach ($batch->data as $key => $value) {
-                $task = $this->task($value);
-                if (false !== $task) {
-                    $batch->data[ $key ] = $task;
+            do {
+                $batch = $this->getBatch();
+                foreach ($batch->data as $key => $value) {
+                    $task = $this->task($value);
+                    if (false !== $task) {
+                        $batch->data[ $key ] = $task;
+                    } else {
+                        unset($batch->data[ $key ]);
+                    }
+                    if ($this->timeExceeded() || $this->memoryExceeded()) {
+                        // Batch limits reached.
+                        break;
+                    }
+                }
+                // Update or delete current batch.
+                if (! empty($batch->data)) {
+                    $this->update($batch->key, $batch->data);
                 } else {
-                    unset($batch->data[ $key ]);
+                    $this->delete($batch->key);
                 }
-                if ($this->timeExceeded() || $this->memoryExceeded()) {
-                    // Batch limits reached.
-                    break;
-                }
-            }
-            // Update or delete current batch.
-            if (! empty($batch->data)) {
-                $this->update($batch->key, $batch->data);
-            } else {
-                $this->delete($batch->key);
-            }
-            #} while (! $this->timeExceeded() && ! $this->memoryExceeded() && ! $this->isQueueEmpty());
+            } while (! $this->timeExceeded() && ! $this->memoryExceeded() && ! $this->isQueueEmpty());
             $this->unlockProcess();
             // Start next batch or complete process.
             if (! $this->isQueueEmpty()) {
@@ -345,7 +347,7 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          */
         protected function timeExceeded()
         {
-            $finish = $this->start_time + apply_filters($this->identifier . '_default_time_limit', 20); // 20 seconds
+            $finish = $this->start_time + apply_filters($this->identifier . '_default_time_limit', 60); // 60 seconds
             $return = false;
             if (time() >= $finish) {
                 $return = true;
@@ -372,7 +374,7 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          */
         public function scheduleCronHealthcheck($schedules)
         {
-            $interval = apply_filters($this->identifier . '_cron_interval', 5);
+            $interval = apply_filters($this->identifier . '_cron_interval', 3);
             if (property_exists($this, 'cron_interval')) {
                 $interval = apply_filters($this->identifier . '_cron_interval', $this->cron_interval);
             }
@@ -391,6 +393,10 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          */
         public function handleCronHealthcheck()
         {
+            if (!get_option("recommender_api_client_secret_sent")) {
+                // Client Secret is not sent to recommender server.
+                exit;
+            }
             if ($this->isProcessRunning()) {
                 // Background process already running.
                 exit;
@@ -433,11 +439,11 @@ if (! class_exists('RecommenderBackgroundProcess')) {
                 $this->clearScheduledEvent();
                 $this->unlockProcess();
             }
-            if (! $this->isQueueEmpty()) {
+            while (! $this->isQueueEmpty()) {
                 $batch = $this->getBatch();
                 $this->delete($batch->key);
-                wp_clear_scheduled_hook($this->cron_hook_identifier);
             }
+            wp_clear_scheduled_hook($this->cron_hook_identifier);
         }
         /**
          * Task

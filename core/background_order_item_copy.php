@@ -30,6 +30,7 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
      */
     protected function task($item)
     {
+
         $order_item = new \WC_Order_Item_Product($item);
         $order = $order_item->get_order();
 
@@ -42,15 +43,21 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
 
         $properties = array(
             'billing_email'       => $order->get_billing_email(),
+            'billing_phone'       => $order->get_billing_phone(),
             'billing_first_name'  => $order->get_billing_first_name(),
             'billing_last_name'   => $order->get_billing_last_name(),
+            'billing_address'     => $order->get_billing_address_1(),
+            'billing_city'        => $order->get_billing_city(),
+            'billing_state'       => $order->get_billing_state(),
+            'postcode'            => $order->get_billing_postcode(),
             'customer_ip_address' => $order->get_customer_ip_address(),
             'customer_user_agent' => $order->get_customer_user_agent(),
             'date_completed'      => $order->get_date_completed(),
-            'date_paid'           => $order->get_date_paid()
+            'date_paid'           => $order->get_date_paid(),
+            'item_total_price'    => $order_item->get_total()
         );
 
-        $response = $this->client->sendInteraction($user_id, $order_item->get_product_id(), "purchase", $order_item->get_quantity(), $order->get_date_modified(), $properties);
+        $response = $this->client->sendInteraction($user_id, $order_item->get_product_id(), "purchase", $order_item->get_quantity(), $order->get_date_modified(), "order_item_id_".$item, $properties);
 
         // check the response
         if (is_wp_error($response)) {
@@ -60,9 +67,9 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
         }
         
         if (wp_remote_retrieve_response_code($response) != 201) {
-            error_log("[RECOMMENDER] --- Error adding an interaction.");
+            error_log("[RECOMMENDER] --- Error adding an order.");
             error_log("[RECOMMENDER] --- ". wp_remote_retrieve_body($response));
-            return $item;
+            return false;
         }
         return false;
     }
@@ -75,7 +82,7 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
      */
     protected function complete()
     {
-        error_log("complete");
+        error_log("complete sending interactions");
         parent::complete();
         // Show notice to user or perform some other arbitrary task...
     }

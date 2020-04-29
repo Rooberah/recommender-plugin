@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: recommender\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recommender-"
 "plugin\n"
-"POT-Creation-Date: 2020-02-11T09:52:04+00:00\n"
-"PO-Revision-Date: 2020-02-09 19:52+0330\n"
+"POT-Creation-Date: 2020-03-03T08:27:38+00:00\n"
+"PO-Revision-Date: 2020-03-04 11:08+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fa\n"
@@ -25,7 +25,7 @@ msgstr "پیشنهاددهنده"
 msgid "This Plugins recommends stuff to your users"
 msgstr "این افزونه به کاربر محصول‌های مرتبط را پیشنهاد می‌دهد."
 
-#: core/recommender-admin.php:74
+#: core/recommender-admin.php:76
 msgid "Robera Recommender"
 msgstr "توصیه‌گر روبه‌راه"
 
@@ -41,15 +41,23 @@ msgstr "پیشنهاد"
 msgid "Clicks"
 msgstr "کلیک"
 
-#: core/templates/settings-page.php:24
+#: core/templates/settings-page.php:26
+msgid "Items bought"
+msgstr "قلم خریداری شده"
+
+#: core/templates/settings-page.php:32
+msgid "Bought Value"
+msgstr "ارزش خرید انجام شده"
+
+#: core/templates/settings-page.php:36
 msgid "Robera Recommender Settings"
 msgstr "تنظیمات پیشنهاددهندهٔ روبه‌راه"
 
-#: core/templates/settings-page.php:34
+#: core/templates/settings-page.php:46
 msgid "Use recommendations for related products."
 msgstr "برای محصولات مشابه از پیشنهادهای هوشمند استفاده کن."
 
-#: core/templates/settings-page.php:37
+#: core/templates/settings-page.php:49
 msgid "Submit"
 msgstr "ذخیره"
 

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-02-11T09:52:04+00:00\n"
+"POT-Creation-Date: 2020-03-03T08:27:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.3.0\n"
 "X-Domain: robera-recommender\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "This Plugins recommends stuff to your users"
 msgstr ""
 
-#: core/recommender-admin.php:74
+#: core/recommender-admin.php:76
 msgid "Robera Recommender"
 msgstr ""
 
@@ -38,15 +38,23 @@ msgstr ""
 msgid "Clicks"
 msgstr ""
 
-#: core/templates/settings-page.php:24
+#: core/templates/settings-page.php:26
+msgid "Items bought"
+msgstr ""
+
+#: core/templates/settings-page.php:32
+msgid "Bought Value"
+msgstr ""
+
+#: core/templates/settings-page.php:36
 msgid "Robera Recommender Settings"
 msgstr ""
 
-#: core/templates/settings-page.php:34
+#: core/templates/settings-page.php:46
 msgid "Use recommendations for related products."
 msgstr ""
 
-#: core/templates/settings-page.php:37
+#: core/templates/settings-page.php:49
 msgid "Submit"
 msgstr ""
 

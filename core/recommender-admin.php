@@ -83,12 +83,16 @@ class RecommenderAdmin
         $data = $this->client->getOverviewStatistics();
         $num_recommendations = $data["num_recommendations"];
         $num_clicks = $data["num_clicks"];
+        $num_bought = $data["num_bought"];
+        $sum_bought_value = $data["sum_bought_value"];
         require_once('templates/settings-page.php');
     }
 
     public function enqueueScripts($hook_suffix)
     {
         if (strpos($hook_suffix, RECOMMENDER_PLUGIN_PREFIX) !== false) {
+            wp_register_script('jquery3.1.1', plugins_url('static/jquery.min.js', __FILE__), array(), null, false);
+            wp_add_inline_script('jquery3.1.1', 'var jQuery3_1_1 = $.noConflict(true);');
             if (is_rtl()) {
                 wp_enqueue_style('semantic-style-rtl', plugins_url('static/semantic.rtl.min.css', __FILE__));
             } else {

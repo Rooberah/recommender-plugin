@@ -71,7 +71,7 @@ class RecommenderBackgroundUserCopy extends RecommenderBackgroundProcess
      */
     protected function complete()
     {
-        error_log("complete");
+        error_log("complete sending users.");
         parent::complete();
         // Show notice to user or perform some other arbitrary task...
     }

@@ -16,7 +16,6 @@ class IsGoodProductRequest extends \PHPUnit\Framework\Constraint\Constraint
         parent::__construct();
         $this->item_id = $item_id;
         $this->item_image = $item_image;
-        error_log($item_id . ' ' . $item_image);
     }
 
     public function matches($other): bool
@@ -150,6 +149,7 @@ class RecommenderTest extends \WP_UnitTestCase
         activate_plugin('woocommerce/woocommerce.php');
         WC()->init();
         do_action('woocommerce_after_register_post_type');
+        remove_action('woocommerce_thankyou', 'woocommerce_order_details_table');
     }
 
     private function createProduct()
@@ -162,7 +162,7 @@ class RecommenderTest extends \WP_UnitTestCase
         $product->set_description('test_desc');
         // Attempts to create the new product.
         $product->save();
-        
+
         // Set attachment data
         $filename = 'images/product-image.jpg';
         $attachment = array(
@@ -302,7 +302,109 @@ class RecommenderTest extends \WP_UnitTestCase
         $schedule_event->expects($this->once())
                        ->with(3, $this->anything(), $this->anything());
 
-        $recommender->addAllUsersBackground();
+        $recommender->addAllUsersBackground('recommender_api_sent_users');
+    }
+
+    public function testSendNewProduct()
+    {
+        $options = get_option('recommender_options');
+        $this->initWoocommerce();
+
+        $bg_product_mock = $this->getMockBuilder(RecommenderBackgroundProductCopy::class)
+                                ->setMethods(['pushToQueue'])
+                                ->getMock();
+
+        $bg_product_mock->expects($this->once())
+                        ->method('pushToQueue');
+
+
+        $recommender = new RecommenderPlugin($options);
+        $recommender->bg_product_copy = $bg_product_mock;
+
+        try {
+            $product = $this->createProduct();
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testSendNewProductFirstDraftThenPublish()
+    {
+        $options = get_option('recommender_options');
+        $this->initWoocommerce();
+
+        $bg_product_mock = $this->getMockBuilder(RecommenderBackgroundProductCopy::class)
+                                ->setMethods(['pushToQueue'])
+                                ->getMock();
+
+        $bg_product_mock->expects($this->once())
+                        ->method('pushToQueue');
+
+
+        $recommender = new RecommenderPlugin($options);
+        $recommender->bg_product_copy = $bg_product_mock;
+
+        try {
+            $product = new \WC_Product();
+
+            $product->set_name('test_product');
+            $product->set_status('draft');
+            $product->set_short_description('test_short_desc');
+            $product->set_description('test_desc');
+            // Attempts to create the new product.
+            $product->save();
+
+            $this->assertTrue($bg_product_mock->checkProductIsCandidate($product->get_id()));
+
+            $product->set_status('publish');
+            $product->save();
+
+            $this->assertFalse($bg_product_mock->checkProductIsCandidate($product->get_id()));
+        } catch (\WPDieException $e) {
+        }
+    }
+
+
+    public function testSendNewUser()
+    {
+        $options = get_option('recommender_options');
+        $this->initWoocommerce();
+
+        $bg_user_mock = $this->getMockBuilder(RecommenderBackgroundUserCopy::class)
+                            ->setMethods(['pushToQueue'])
+                            ->getMock();
+
+        $bg_user_mock->expects($this->once())
+                     ->method('pushToQueue');
+
+        $recommender = new RecommenderPlugin($options);
+        $recommender->bg_user_copy = $bg_user_mock;
+
+        try {
+            wp_create_user('a', 'paass', 'a@gmail.com');
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testSendBuy()
+    {
+        $options = get_option('recommender_options');
+        $this->initWoocommerce();
+
+        $bg_order_item_mock = $this->getMockBuilder(RecommenderBackgroundOrderItemCopy::class)
+                                  ->setMethods(['pushToQueue'])
+                                  ->getMock();
+
+        $bg_order_item_mock->expects($this->once())
+                     ->method('pushToQueue');
+
+        $recommender = new RecommenderPlugin($options);
+        $recommender->bg_order_item_copy = $bg_order_item_mock;
+
+        try {
+            $order = $this->createOrder();
+            do_action('woocommerce_thankyou', $order->get_id());
+        } catch (\WPDieException $e) {
+        }
     }
 
     public function testOrdersEventSchedulesWithoutWoocommerce()
@@ -316,7 +418,7 @@ class RecommenderTest extends \WP_UnitTestCase
         $schedule_event = $this->getFunctionMock(__NAMESPACE__, "wp_schedule_event");
         $schedule_event->expects($this->never());
 
-        $recommender->addAllOrderItemsBackground();
+        $recommender->addAllOrderItemsBackground('recommender_api_sent_order_items');
     }
 
     public function testOrdersEventSchedulesOK()
@@ -329,7 +431,7 @@ class RecommenderTest extends \WP_UnitTestCase
         $schedule_event = $this->getFunctionMock(__NAMESPACE__, "wp_schedule_event");
         $schedule_event->expects($this->once());
 
-        $recommender->addAllOrderItemsBackground();
+        $recommender->addAllOrderItemsBackground('recommender_api_sent_order_items');
     }
 
     public function testOrderCopyHandle()
@@ -341,7 +443,13 @@ class RecommenderTest extends \WP_UnitTestCase
                             ->getMock();
 
         $client_mock->expects($this->once())
-                    ->method('sendInteraction');
+                    ->method('sendInteraction')->willReturn(
+                        array(
+                          'response' => array(
+                              'code' => 201
+                          )
+                        )
+                    );
 
 
         $bg_order_item_copy = new RecommenderBackgroundOrderItemCopy();
@@ -369,7 +477,14 @@ class RecommenderTest extends \WP_UnitTestCase
         $order_item_id = array_values($order->get_items())[0]->get_id();
 
         $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
-        $request_mock->expects($this->once())->with($this->anything(), new IsGoodRequest($user_id, $item_id));
+        $request_mock->expects($this->once())->with($this->anything(), new IsGoodRequest($user_id, $item_id))
+                      ->willReturn(
+                          array(
+                            'response' => array(
+                                'code' => 201
+                            )
+                          )
+                      );
 
         $bg_order_item_copy->pushToQueue("$order_item_id");
         try {
@@ -385,7 +500,13 @@ class RecommenderTest extends \WP_UnitTestCase
                             ->getMock();
 
         $client_mock->expects($this->once())
-                    ->method('sendUser');
+                    ->method('sendUser')->willReturn(
+                        array(
+                            'response' => array(
+                                'code' => 201
+                            )
+                        )
+                    );
 
         $bg_user_copy = new RecommenderBackgroundUserCopy();
 
@@ -434,10 +555,53 @@ class RecommenderTest extends \WP_UnitTestCase
         }
     }
 
+    public function testGetOverviewStatistics()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_get");
+        $request_mock->expects($this->once())->willReturn(array(
+            "body" => "{\"num_clicks\": 2, \"num_recommendations\": 5, " .
+                        "\"num_bought\": 1, \"sum_bought_value\": 12.2}",
+            'response' => array(
+                'code' => 200
+            )
+        ));
+        $client = new RecommenderClient();
+
+        try {
+            $res = $client->getOverviewStatistics();
+            $this->assertEquals($res["num_recommendations"], 5);
+            $this->assertEquals($res["num_clicks"], 2);
+            $this->assertEquals($res["num_bought"], 1);
+            $this->assertEquals($res["sum_bought_value"], 12.2);
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testGetOverviewStatisticsError()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_get");
+        $request_mock->expects($this->once())->willReturn(
+            new \WP_Error()
+        );
+        $client = new RecommenderClient();
+
+        try {
+            $res = $client->getOverviewStatistics();
+            $this->assertEquals(count($res), 0);
+        } catch (\WPDieException $e) {
+        }
+    }
+
     public function testUserCopyHandleMockRequest()
     {
         $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
-        $request_mock->expects($this->once());
+        $request_mock->expects($this->once())->willReturn(
+            array(
+                'response' => array(
+                    'code' => 201
+                )
+            )
+        );
 
         $bg_user_copy = new RecommenderBackgroundUserCopy();
 
@@ -452,15 +616,22 @@ class RecommenderTest extends \WP_UnitTestCase
     public function testUserCopyHandleMockRequestWPError()
     {
         $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
-        $request_mock->expects($this->once())->willReturn(
+        $request_mock->expects($this->at(0))->willReturn(
             new \WP_Error()
+        );
+        $request_mock->expects($this->at(1))->willReturn(
+            array(
+                'response' => array(
+                    'code' => 201
+                )
+            )
         );
 
         $background_user_mock = $this->getMockBuilder(RecommenderBackgroundUserCopy::class)
                             ->setMethods(['complete'])
                             ->getMock();
 
-        $background_user_mock->expects($this->never())
+        $background_user_mock->expects($this->once())
                              ->method('complete');
 
         $bg_user_copy = $background_user_mock;
@@ -476,10 +647,17 @@ class RecommenderTest extends \WP_UnitTestCase
     public function testUserCopyHandleMockRequestError()
     {
         $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
-        $request_mock->expects($this->once())->willReturn(
+        $request_mock->expects($this->at(0))->willReturn(
             array(
                 'response' => array(
                     'code' => 400
+                )
+            )
+        );
+        $request_mock->expects($this->at(1))->willReturn(
+            array(
+                'response' => array(
+                    'code' => 201
                 )
             )
         );
@@ -489,7 +667,7 @@ class RecommenderTest extends \WP_UnitTestCase
                             ->setMethods(['complete'])
                             ->getMock();
 
-        $background_user_mock->expects($this->never())
+        $background_user_mock->expects($this->once())
                              ->method('complete');
 
         $bg_user_copy = $background_user_mock;
@@ -592,7 +770,7 @@ class RecommenderTest extends \WP_UnitTestCase
         $schedule_event = $this->getFunctionMock(__NAMESPACE__, "wp_schedule_event");
         $schedule_event->expects($this->never());
 
-        $recommender->addAllProductsBackground();
+        $recommender->addAllProductsBackground('recommender_api_sent_products');
     }
 
     public function testProductEventSchedulesOK()
@@ -605,7 +783,7 @@ class RecommenderTest extends \WP_UnitTestCase
         $schedule_event = $this->getFunctionMock(__NAMESPACE__, "wp_schedule_event");
         $schedule_event->expects($this->once());
 
-        $recommender->addAllProductsBackground();
+        $recommender->addAllProductsBackground('recommender_api_sent_products');
     }
 
     public function testProductCopyHandle()
@@ -617,7 +795,13 @@ class RecommenderTest extends \WP_UnitTestCase
                             ->getMock();
 
         $client_mock->expects($this->once())
-                    ->method('sendItem');
+                    ->method('sendItem')->willReturn(
+                        array(
+                            'response' => array(
+                                'code' => 201,
+                            )
+                        )
+                    );
 
 
         $bg_product_copy = new RecommenderBackgroundProductCopy();
@@ -643,7 +827,13 @@ class RecommenderTest extends \WP_UnitTestCase
 
         $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
         $request_mock->expects($this->once())->
-            with($this->anything(), new IsGoodProductRequest($product->get_id(), wp_get_attachment_url($product->get_image_id())));
+            with($this->anything(), new IsGoodProductRequest($product->get_id(), wp_get_attachment_url($product->get_image_id())))->willReturn(
+                array(
+                    'response' => array(
+                        'code' => 201,
+                    )
+                )
+            );
 
         $bg_product_copy->pushToQueue(sprintf("%s", $product->get_id()));
         try {
