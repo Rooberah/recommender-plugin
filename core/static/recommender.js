@@ -25,7 +25,7 @@
 			'interaction_type': "click_on_recommended"
 		};
 		if(product_id != null)
-			data['product_id'] = product_id;
+			data['related_to_item_id'] = product_id;
 
 		xmlhttp.send(JSON.stringify(data));
 	}

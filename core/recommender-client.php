@@ -51,7 +51,6 @@ class RecommenderClient
         $this->client_secret = $options && array_key_exists('recommender_api_client_secret', $options) ? $options['recommender_api_client_secret'] : '';
         $this->client_id = $options && array_key_exists('client_id', $options) ? $options['client_id'] : '';
         $this->client_secret = get_option(RecommenderPlugin::CLIENT_SECRET_OPTION);
-
         global $wp_version;
         $this->user_agent = $this->site_name . ' WordPress/' . $wp_version . ' - ' .
             'Recommender/' . RECOMMENDER_PLUGIN_VERSION;
