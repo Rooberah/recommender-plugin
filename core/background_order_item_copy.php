@@ -82,7 +82,7 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
      */
     protected function complete()
     {
-        error_log("complete sending interactions");
+        error_log($this->identifier . " complete");
         parent::complete();
         // Show notice to user or perform some other arbitrary task...
     }

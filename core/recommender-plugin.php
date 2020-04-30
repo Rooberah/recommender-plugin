@@ -9,6 +9,7 @@ defined('ABSPATH') or die('No script kiddies please!');
 
 require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-client.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/background_user_copy.php';
+require_once RECOMMENDER_PLUGIN_PATH.'core/background_general_interaction_copy.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/background_order_item_copy.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/background_product_copy.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/utils.php';
@@ -38,9 +39,11 @@ class RecommenderPlugin
         $this->bg_user_copy = new RecommenderBackgroundUserCopy();
         $this->bg_order_item_copy = new RecommenderBackgroundOrderItemCopy();
         $this->bg_product_copy = new RecommenderBackgroundProductCopy();
+        $this->bg_interaction_copy = new RecommenderBackgroundGeneralInteractionCopy();
 
         add_action('admin_init', array(&$this, 'sendData'));
         add_action('plugins_loaded', array(&$this, 'checkSendSecret'));
+        add_action('wp', array(&$this, 'sendProductView'));
         add_action('wp_enqueue_scripts', array(&$this, 'enqueueScripts'));
         add_action('save_post_product', array(&$this, 'sendNewProduct'), 10, 3);
         add_action('user_register', array(&$this, 'sendNewUser'), 10, 1);
@@ -159,6 +162,29 @@ class RecommenderPlugin
         ));
         $orders = $query->get_orders();
         $this->trySendingOnce("orders", [&$this, "addAllOrderItemsBackground"], count($orders));
+    }
+
+    public function sendProductView()
+    {
+        $user_id =get_current_user_id();
+        $product_id = null;
+        if (is_product()) {
+            global $product;
+            if (!is_object($product)) {
+                $product = wc_get_product(get_the_ID());
+            }
+            $product_id = $product->get_id();
+        }
+        if (!$product_id) {
+            return;
+        }
+        $this->bg_interaction_copy->pushToQueue(array(
+            $user_id,
+            $product_id,
+            'view',
+            $this->client->getEventTime(null)
+        ));
+        $this->bg_interaction_copy->save()->dispatch();
     }
 
     public function sendNewProduct($product_id, $product_post, $update)

@@ -327,6 +327,75 @@ class RecommenderTest extends \WP_UnitTestCase
         }
     }
 
+    public function testSendProductView()
+    {
+        $options = get_option('recommender_options');
+        $this->initWoocommerce();
+
+        global $product;
+        $product = $this->createProduct();
+
+        $is_product_mock = $this->getFunctionMock(__NAMESPACE__, "is_product");
+        $is_product_mock->expects($this->any())
+                        ->willReturn(true);
+
+        $time_string = "2019-12-02T01:01:01";
+        $client_mock = $this->getMockBuilder(RecommenderClient::class)
+                                    ->setMethods(['getEventTime'])
+                                    ->getMock();
+
+        $client_mock->expects($this->once())
+                    ->method('getEventTime')
+                    ->willReturn($time_string);
+
+        $bg_interaction_mock = $this->getMockBuilder(RecommenderBackgroundGeneralInteractionCopy::class)
+                                    ->setMethods(['pushToQueue'])
+                                    ->getMock();
+
+        $bg_interaction_mock->expects($this->once())
+                            ->method('pushToQueue')
+                            ->with(array(0, $product->get_id(), 'view', $time_string));
+
+
+        $recommender = new RecommenderPlugin($options);
+        $recommender->bg_interaction_copy = $bg_interaction_mock;
+        $recommender->client = $client_mock;
+
+        try {
+            do_action('wp');
+        } catch (\WPDieException $e) {
+        }
+    }
+
+    public function testSendProductViewNotProductPage()
+    {
+        $options = get_option('recommender_options');
+        $this->initWoocommerce();
+
+        global $product;
+        $product = $this->createProduct();
+
+        $is_product_mock = $this->getFunctionMock(__NAMESPACE__, "is_product");
+        $is_product_mock->expects($this->any())
+                        ->willReturn(false);
+
+        $bg_interaction_mock = $this->getMockBuilder(RecommenderBackgroundGeneralInteractionCopy::class)
+                                    ->setMethods(['pushToQueue'])
+                                    ->getMock();
+
+        $bg_interaction_mock->expects($this->never())
+                            ->method('pushToQueue');
+
+
+        $recommender = new RecommenderPlugin($options);
+        $recommender->bg_interaction_copy = $bg_interaction_mock;
+
+        try {
+            do_action('wp');
+        } catch (\WPDieException $e) {
+        }
+    }
+
     public function testSendNewProductFirstDraftThenPublish()
     {
         $options = get_option('recommender_options');

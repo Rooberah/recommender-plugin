@@ -94,7 +94,7 @@ class RecommenderClient
      *
      * @return object             result event time
      */
-    private function _getEventTime($event_time)
+    public function getEventTime($event_time = null)
     {
         $result = $event_time;
         if (!isset($event_time)) {
@@ -216,7 +216,7 @@ class RecommenderClient
      */
     public function sendUser($uid, array $properties = array(), $event_time = null)
     {
-        $event_time = $this->_getEventTime($event_time);
+        $event_time = $this->getEventTime($event_time);
         // casting to object so that an empty array would be represented as {}
         if (empty($properties)) {
             $properties = (object)$properties;
@@ -246,7 +246,7 @@ class RecommenderClient
 
     public function sendItem($iid, array $properties = array(), $event_time = null)
     {
-        $event_time = $this->_getEventTime($event_time);
+        $event_time = $this->getEventTime($event_time);
         // casting to object so that an empty array would be represented as {}
         if (empty($properties)) {
             $properties = (object)$properties;
@@ -307,7 +307,7 @@ class RecommenderClient
 
     public function sendInteraction($user_id, $item_id, $interaction_type, $interaction_value, $interaction_time, $interaction_id = null, array $properties = array(), array $user_features = array(), array $item_features = array(), $event_time = null)
     {
-        $event_time = $this->_getEventTime($event_time);
+        $event_time = $this->getEventTime($event_time);
         // casting to object so that an empty array would be represented as {}
         if (empty($properties)) {
             $properties = (object)$properties;

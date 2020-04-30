@@ -120,7 +120,7 @@ class RecommenderBackgroundProductCopy extends RecommenderBackgroundProcess
      */
     protected function complete()
     {
-        error_log("complete sending products");
+        error_log($this->identifier . " complete");
         parent::complete();
         // Show notice to user or perform some other arbitrary task...
     }
