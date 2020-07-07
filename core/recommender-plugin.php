@@ -20,6 +20,7 @@ class RecommenderPlugin
     const CLIENT_SECRET_SENT_OPTION = "recommender_api_client_secret_sent";
 
     public static $RECOMMEND_ON_RELATED_PRODUCTS_OPTION_NAME = RECOMMENDER_PLUGIN_PREFIX . "recommend_on_related";
+    public static $RECOMMEND_ON_RELATED_PRODUCTS_SECTION_CLASS_OPTION_NAME = RECOMMENDER_PLUGIN_PREFIX . "related_products_section_class_name";
 
     public function __construct($options)
     {
@@ -47,6 +48,8 @@ class RecommenderPlugin
         add_action('wp_enqueue_scripts', array(&$this, 'enqueueScripts'));
         add_action('save_post_product', array(&$this, 'sendNewProduct'), 10, 3);
         add_action('user_register', array(&$this, 'sendNewUser'), 10, 1);
+        add_action('admin_init', array(&$this, 'getAnonymousID'));
+        add_action('wp_login', array(&$this, 'loginFunction'));
 
         register_activation_hook(RECOMMENDER_PLUGIN_FILE_PATH, array($this, 'recommenderActivate'));
         register_deactivation_hook(RECOMMENDER_PLUGIN_FILE_PATH, array($this, 'recommenderDeactivate'));
@@ -54,8 +57,25 @@ class RecommenderPlugin
 
         if ($this->has_woocommerce) {
             add_action('woocommerce_order_status_completed', array(&$this, 'sendBuyData'), 10, 1);
+            add_action('woocommerce_add_to_cart', array(&$this, 'sendCartProduct'), 10, 6);
         }
     } // end of method -> __construct
+
+    public function getAnonymousID(){
+        $domain = COOKIE_DOMAIN ? COOKIE_DOMAIN : $_SERVER['HTTP_HOST'];
+        $key = RECOMMENDER_PLUGIN_PREFIX.'anonymous_id';
+        if (!isset($_COOKIE[$key])){
+            $cookie_key = utils::randomString(128);
+            setcookie($key, $cookie_key, time()+YEAR_IN_SECONDS,'/', $domain);
+        }
+        return $_COOKIE[$key];
+    }
+
+    public function loginFunction($login){
+        $user_id =get_user_by('login', $login)->ID;
+        $anonymous_id = $this->getAnonymousID();
+        $this->client->sendLoginData($user_id, $anonymous_id);
+    }
 
     public function enqueueScripts()
     {
@@ -86,7 +106,9 @@ class RecommenderPlugin
                     'user_id' => get_current_user_id(),
                     'is_product' => is_product(),
                     'product_id' => $product_id,
-                    'jwt_pool' => $interactionIds
+                    'jwt_pool' => $interactionIds,
+                    'anonymous_id' => $this->getAnonymousID(),
+                    'related_products_section_class' => get_option(RecommenderPlugin::$RECOMMEND_ON_RELATED_PRODUCTS_SECTION_CLASS_OPTION_NAME) != ""?get_option(RecommenderPlugin::$RECOMMEND_ON_RELATED_PRODUCTS_SECTION_CLASS_OPTION_NAME):"related products"
                 )
             );
         }
@@ -117,7 +139,7 @@ class RecommenderPlugin
         wp_set_script_translations('gutenberg-user-recommendation-block', 'robera-recommender', plugin_dir_path(RECOMMENDER_PLUGIN_FILE_PATH) . 'languages');
 
         register_block_type('recommender/user-recommendation', array(
-                'editor_script' => 'gutenberg-user-recommendation-block',
+            'editor_script' => 'gutenberg-user-recommendation-block',
         ));
     }
 
@@ -164,6 +186,19 @@ class RecommenderPlugin
         $this->trySendingOnce("orders", [&$this, "addAllOrderItemsBackground"], count($orders));
     }
 
+    public function sendCartProduct( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ){
+        $user_id = get_current_user_id();
+        $this->bg_interaction_copy->pushToQueue(array(
+            $user_id,
+            $product_id,
+            'add_to_cart',
+            $this->client->getEventTime(null),
+            $this->getAnonymousID(),
+            $quantity
+        ));
+        $this->bg_interaction_copy->save()->dispatch();
+    }
+
     public function sendProductView()
     {
         $user_id =get_current_user_id();
@@ -182,7 +217,8 @@ class RecommenderPlugin
             $user_id,
             $product_id,
             'view',
-            $this->client->getEventTime(null)
+            $this->client->getEventTime(null),
+            $this->getAnonymousID()
         ));
         $this->bg_interaction_copy->save()->dispatch();
     }
@@ -210,7 +246,8 @@ class RecommenderPlugin
 
     public function sendNewUser($user_id)
     {
-        $this->bg_user_copy->pushToQueue($user_id);
+        $a_id = $this->getAnonymousID();
+        $this->bg_user_copy->pushToQueue(array($user_id, $a_id));
         $this->bg_user_copy->save()->dispatch();
     }
 
@@ -219,7 +256,9 @@ class RecommenderPlugin
         $order = wc_get_order($order_id);
         $items = $order->get_items();
         foreach ($items as $item) {
-            $this->bg_order_item_copy->pushToQueue($item->get_id());
+            $this->bg_order_item_copy->pushToQueue(array(
+                $item->get_id(), $this->getAnonymousID()
+            ));
         }
         $this->bg_order_item_copy->save()->dispatch();
     }
@@ -274,7 +313,7 @@ class RecommenderPlugin
         // Array of WP_User objects.
 
         foreach (array_values($user_ids) as $i => $id) {
-            $this->bg_user_copy->pushToQueue($id);
+            $this->bg_user_copy->pushToQueue(array($id, null));
             if (($i + 1) % $this->bucket_size == 0) {
                 $this->bg_user_copy->save();
                 update_option($sent_option_key, $i + 1);
@@ -331,7 +370,7 @@ class RecommenderPlugin
             foreach (array_values($orders) as $i => $order) {
                 $items = $order->get_items();
                 foreach ($items as $item) {
-                    $this->bg_order_item_copy->pushToQueue($item->get_id());
+                    $this->bg_order_item_copy->pushToQueue(array($item->get_id(), null));
                 }
             }
             $this->bg_order_item_copy->save();

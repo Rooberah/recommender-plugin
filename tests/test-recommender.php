@@ -327,6 +327,26 @@ class RecommenderTest extends \WP_UnitTestCase
         }
     }
 
+    public function testSendToCart(){
+        $this->initWoocommerce();
+
+        $product = $this->createProduct();
+
+        $time_string = "2020-06-24T06:30:14";
+        $is_product_mock = $this->getFunctionMock(__NAMESPACE__, "is_product");
+        $is_product_mock->expects($this->any())->willReturn(true);
+
+        $bg_interaction_copy = new RecommenderBackgroundGeneralInteractionCopy();
+        $bg_interaction_copy->pushToQueue(
+            array(0, $product->get_id(), 'add_to_cart', $time_string)
+        );
+        try {
+            $bg_interaction_copy->save()->handleCronHealthcheck();
+        } catch (\WPDieException $e) {
+        }
+
+    }
+
     public function testSendProductView()
     {
         $options = get_option('recommender_options');
@@ -562,6 +582,33 @@ class RecommenderTest extends \WP_UnitTestCase
         }
     }
 
+    public function testOrderCopyHandleErrorInterval(){
+        $this->initWoocommerce();
+
+        $bg_order_item_copy = new RecommenderBackgroundOrderItemCopy();
+
+        $order = $this->createOrder();
+        $user_id = $order->get_user_id();
+        $item_id = array_values($order->get_items())[0]->get_product_id();
+        $order_item_id = array_values($order->get_items())[0]->get_id();
+        $this->assertEquals($bg_order_item_copy->cron_interval, 1);
+
+        $bg_order_item_copy->pushToQueue("$order_item_id");
+
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->with($this->anything(), new IsGoodRequest($user_id, $item_id))
+            ->willReturn(
+                array(
+                    'response' => array(
+                        'code' => 400,
+                        'error'=> ''
+                    )
+                )
+            );
+        $this->assertEquals($bg_order_item_copy->cron_interval, 2);
+
+    }
+
     public function testUserCopyHandle()
     {
         $client_mock = $this->getMockBuilder(RecommenderClient::class)
@@ -629,7 +676,7 @@ class RecommenderTest extends \WP_UnitTestCase
         $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_get");
         $request_mock->expects($this->once())->willReturn(array(
             "body" => "{\"num_clicks\": 2, \"num_recommendations\": 5, " .
-                        "\"num_bought\": 1, \"sum_bought_value\": 12.2}",
+                        "\"num_bought\": 1, \"sum_bought_value\": 12.2, \"state\": \"training\" }",
             'response' => array(
                 'code' => 200
             )
@@ -642,6 +689,7 @@ class RecommenderTest extends \WP_UnitTestCase
             $this->assertEquals($res["num_clicks"], 2);
             $this->assertEquals($res["num_bought"], 1);
             $this->assertEquals($res["sum_bought_value"], 12.2);
+            $this->assertEquals($res["state"], "training");
         } catch (\WPDieException $e) {
         }
     }
@@ -826,6 +874,37 @@ class RecommenderTest extends \WP_UnitTestCase
             $bg_user_copy->save()->handleCronHealthcheck();
         } catch (\WPDieException $e) {
         }
+        $this->assertEquals($bg_user_copy->cron_interval, 1);
+    }
+
+    public function testUserCopyHandleMockRequestErrorInterval()
+    {
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->willReturn(
+            array(
+                'body'     => '{"error":"User is duplicated."}',
+                'response' => array(
+                    'code' => 400,
+                )
+            )
+        );
+
+        $background_user_mock = $this->getMockBuilder(RecommenderBackgroundUserCopy::class)
+            ->setMethods(['complete'])
+            ->getMock();
+
+        $background_user_mock->expects($this->once())
+            ->method('complete');
+
+        $bg_user_copy = $background_user_mock;
+        $this->assertEquals($bg_user_copy->cron_interval, 1);
+        $this->addUsers($bg_user_copy);
+
+        try {
+            $bg_user_copy->save()->handleCronHealthcheck();
+        } catch (\WPDieException $e) {
+        }
+        $this->assertEquals($bg_user_copy->cron_interval, 2);
     }
 
     public function testProductEventSchedulesWithoutWoocommerce()
@@ -942,5 +1021,40 @@ class RecommenderTest extends \WP_UnitTestCase
             $bg_product_copy->save()->handleCronHealthcheck();
         } catch (\WPDieException $e) {
         }
+        $this->assertEquals($bg_product_copy->cron_interval, 1);
+    }
+
+    public function testProductCopyHandleMockRequestErrorInterval()
+    {
+        $this->initWoocommerce();
+
+        $request_mock = $this->getFunctionMock(__NAMESPACE__, "wp_remote_post");
+        $request_mock->expects($this->once())->willReturn(
+            array(
+                'body'     => '{"error":""}',
+                'response' => array(
+                    'code' => 400,
+                )
+            )
+        );
+
+        $background_product_mock = $this->getMockBuilder(RecommenderBackgroundProductCopy::class)
+            ->setMethods(['complete'])
+            ->getMock();
+
+        $background_product_mock->expects($this->once())
+            ->method('complete');
+
+        $bg_product_copy = $background_product_mock;
+        $this->assertEquals($bg_product_copy->cron_interval, 1);
+        $product = $this->createProduct();
+
+        $bg_product_copy->pushToQueue(sprintf("%s", $product->get_id()));
+
+        try {
+            $bg_product_copy->save()->handleCronHealthcheck();
+        } catch (\WPDieException $e) {
+        }
+        $this->assertEquals($bg_product_copy->cron_interval, 2);
     }
 }

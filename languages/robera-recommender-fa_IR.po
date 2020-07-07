@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: recommender\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recommender-"
 "plugin\n"
-"POT-Creation-Date: 2020-03-03T08:27:38+00:00\n"
+"POT-Creation-Date: 2020-07-04T14:47:59+00:00\n"
 "PO-Revision-Date: 2020-03-04 11:08+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,39 +25,67 @@ msgstr "پیشنهاددهنده"
 msgid "This Plugins recommends stuff to your users"
 msgstr "این افزونه به کاربر محصول‌های مرتبط را پیشنهاد می‌دهد."
 
-#: core/recommender-admin.php:76
+#: core/recommender-admin.php:77
 msgid "Robera Recommender"
 msgstr "توصیه‌گر روبه‌راه"
 
+#: core/templates/settings-page.php:4
+msgid "receiving data"
+msgstr "در حال دریافت داده"
+
+#: core/templates/settings-page.php:5
+msgid "training"
+msgstr "در حال مدل‌سازی"
+
+#: core/templates/settings-page.php:6
+msgid "trained"
+msgstr "همه چیز روبه‌راه است :)"
+
 #: core/templates/settings-page.php:9
-msgid "Recommendation Statistics"
-msgstr "آمار پیشنهادات"
+msgid "Recommendations on item Statistics"
+msgstr "آمار پیشنهاد محصولات مشابه"
 
-#: core/templates/settings-page.php:14
-msgid "Recommendations"
-msgstr "پیشنهاد"
+#: core/templates/settings-page.php:10
+msgid "Recommendations on user Statistics"
+msgstr "آمار پیشنهاد محصولات به کاربر"
 
-#: core/templates/settings-page.php:20
+#: core/templates/settings-page.php:23
+msgid "The last state of robera"
+msgstr "آخرین وضعیت روبه‌راه"
+
+#: core/templates/settings-page.php:33
+msgid "number of recommendations"
+msgstr "تعداد نوار محصول‌ها"
+
+#: core/templates/settings-page.php:39
 msgid "Clicks"
-msgstr "کلیک"
+msgstr "کلیک‌ها"
 
-#: core/templates/settings-page.php:26
+#: core/templates/settings-page.php:45
 msgid "Items bought"
 msgstr "قلم خریداری شده"
 
-#: core/templates/settings-page.php:32
+#: core/templates/settings-page.php:51
 msgid "Bought Value"
 msgstr "ارزش خرید انجام شده"
 
-#: core/templates/settings-page.php:36
+#: core/templates/settings-page.php:56
 msgid "Robera Recommender Settings"
 msgstr "تنظیمات پیشنهاددهندهٔ روبه‌راه"
 
-#: core/templates/settings-page.php:46
+#: core/templates/settings-page.php:66
 msgid "Use recommendations for related products."
 msgstr "برای محصولات مشابه از پیشنهادهای هوشمند استفاده کن."
 
-#: core/templates/settings-page.php:49
+#: core/templates/settings-page.php:70
+msgid "Related products section class name"
+msgstr "نام کلاس (css) بخش محصولات مشابه"
+
+#: core/templates/settings-page.php:72
+msgid "Class names"
+msgstr "نام کلاس‌ها"
+
+#: core/templates/settings-page.php:76
 msgid "Submit"
 msgstr "ذخیره"
 

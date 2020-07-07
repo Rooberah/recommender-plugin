@@ -41,12 +41,20 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          */
         protected $cron_interval_identifier;
         /**
+         * first_data_transfer_option
+         *
+         * @var    mixed
+         * @access protected
+         */
+        protected $first_data_transfer_option;
+        /**
          * Initiate new background process
          */
         public function __construct()
         {
             parent::__construct();
             $this->client = new RecommenderClient();
+            $this->first_data_transfer_option = $this->identifier.'_first_data_transfer_option';
             $this->cron_hook_identifier     = $this->identifier . '_cron';
             $this->cron_interval_identifier = $this->identifier . '_cron_interval';
             $this->data = array();
@@ -275,9 +283,9 @@ if (! class_exists('RecommenderBackgroundProcess')) {
                 foreach ($batch->data as $key => $value) {
                     $task = $this->task($value);
                     if (false !== $task) {
-                        $batch->data[ $key ] = $task;
+                        $batch->data[$key] = $task;
                     } else {
-                        unset($batch->data[ $key ]);
+                        unset($batch->data[$key]);
                     }
                     if ($this->timeExceeded() || $this->memoryExceeded()) {
                         // Batch limits reached.
@@ -285,12 +293,13 @@ if (! class_exists('RecommenderBackgroundProcess')) {
                     }
                 }
                 // Update or delete current batch.
-                if (! empty($batch->data)) {
+                if (!empty($batch->data)) {
                     $this->update($batch->key, $batch->data);
                 } else {
                     $this->delete($batch->key);
                 }
             } while (! $this->timeExceeded() && ! $this->memoryExceeded() && ! $this->isQueueEmpty());
+
             $this->unlockProcess();
             // Start next batch or complete process.
             if (! $this->isQueueEmpty()) {
@@ -347,7 +356,7 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          */
         protected function timeExceeded()
         {
-            $finish = $this->start_time + apply_filters($this->identifier . '_default_time_limit', 60); // 60 seconds
+            $finish = $this->start_time + apply_filters($this->identifier . '_default_time_limit', 30); // 30 seconds
             $return = false;
             if (time() >= $finish) {
                 $return = true;
@@ -362,7 +371,11 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          */
         protected function complete()
         {
-            // Unschedule the cron healthcheck.
+            if (!get_option($this->first_data_transfer_option)){
+                $this->client->changeState($this->action.'_done');
+                update_option($this->first_data_transfer_option, true);
+            }
+            // clear schedule of the cron healthCheck.
             $this->clearScheduledEvent();
         }
         /**
@@ -458,5 +471,27 @@ if (! class_exists('RecommenderBackgroundProcess')) {
          * @return mixed
          */
         abstract protected function task($item);
+
+        protected function checkResponse($item, $response){
+            // check the response
+            if (is_wp_error($response)) {
+                error_log(sprintf("[RECOMMENDER] --- Error adding %s %s.",$this->action, $item));
+                error_log("[RECOMMENDER] --- " . $response->get_error_message());
+                return $item;
+            }
+            $status_code = wp_remote_retrieve_response_code($response);
+            $answer = $item;
+            if ($status_code != 201) {
+                $error_body = wp_remote_retrieve_body($response);
+                error_log("[RECOMMENDER] --- Error adding a ".$this->action);
+                error_log("[RECOMMENDER] --- ".$error_body);
+                if ($status_code == 400 && strpos($error_body, 'duplicated') !== false ) {
+                    $answer = false;
+                }
+            }else{
+                $answer = false;
+            }
+            return $answer;
+        }
     }
 }

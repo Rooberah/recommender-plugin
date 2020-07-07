@@ -35,7 +35,7 @@ class RecommenderClient
     const TIMEOUT = 3;
     const HTTPVERSION = '1.1';
     const CLIENT_DUPLICATE_STATUS = "CLIENT_DUPLICATE";
-    //const EVENTS_URL = 'http://localhost:8000/recommender/api/core/api/v1/';
+//    const EVENTS_URL = 'http://localhost:8000/recommender/api/core/api/v1/';
     const EVENTS_URL = 'https://pinkorblue.info/recommender/api/core/api/v1/';
 
     /**
@@ -214,7 +214,7 @@ class RecommenderClient
      *
      * @return string JSON response
      */
-    public function sendUser($uid, array $properties = array(), $event_time = null)
+    public function sendUser($uid, $anonymous_id, array $properties = array(), $event_time = null)
     {
         $event_time = $this->getEventTime($event_time);
         // casting to object so that an empty array would be represented as {}
@@ -235,6 +235,7 @@ class RecommenderClient
                         'user_id' => $uid,
                         'properties' => $properties,
                         'created_at' => $event_time,
+                        'anonymous_id'=> $anonymous_id
                     ]
                 )
             )
@@ -243,6 +244,26 @@ class RecommenderClient
 
         return $response;
     }
+
+    public function sendLoginData($uid, $aid){
+        $url = self::EVENTS_URL . 'user/login/';
+        return wp_remote_request(
+            $url,
+            array(
+                'timeout' => self::TIMEOUT,
+                'httpversion' => self::HTTPVERSION,
+                'headers' => $this->getHeader(),
+                'body'=> json_encode(
+                    [
+                        'anonymous_id' => $aid,
+                        'user_id'=> $uid
+                    ]
+                ),
+                'method'=> "PUT"
+            )
+        );
+    }
+
 
     public function sendItem($iid, array $properties = array(), $event_time = null)
     {
@@ -305,7 +326,7 @@ class RecommenderClient
         return true;
     }
 
-    public function sendInteraction($user_id, $item_id, $interaction_type, $interaction_value, $interaction_time, $interaction_id = null, array $properties = array(), array $user_features = array(), array $item_features = array(), $event_time = null)
+    public function sendInteraction($user_id, $item_id, $interaction_type, $interaction_value, $interaction_time, $anonymous_id, $interaction_id = null, array $properties = array(), array $user_features = array(), array $item_features = array(), $event_time = null)
     {
         $event_time = $this->getEventTime($event_time);
         // casting to object so that an empty array would be represented as {}
@@ -340,12 +361,32 @@ class RecommenderClient
                         'item_features' => $item_features,
                         'properties' => $properties,
                         'created_at' => $event_time,
-                        'interaction_id' => $interactionId
+                        'interaction_id' => $interactionId,
+                        'anonymous_id' => $anonymous_id
                     ]
                 )
             )
         );
 
         return $response;
+    }
+
+    public function changeState($new_state){
+        $url = self::EVENTS_URL . 'client/change_state/';
+        return wp_remote_request(
+            $url,
+            array(
+                'timeout' => self::TIMEOUT,
+                'httpversion' => self::HTTPVERSION,
+                'headers' => $this->getHeader(),
+                'body'=> json_encode(
+                        [
+                            'state' => $new_state,
+                            'site_name'=> $this->site_name
+                        ]
+                ),
+                'method'=> "PUT"
+            )
+        );
     }
 } // end of class Recomendo_Client

@@ -31,7 +31,7 @@ class RecommenderBackgroundUserCopy extends RecommenderBackgroundProcess
     protected function task($item)
     {
         // Actions to perform
-        $user = get_userdata($item);
+        $user = get_userdata($item[0]);
 
         $properties = array(
             'user_login' => $user->user_login,
@@ -39,28 +39,12 @@ class RecommenderBackgroundUserCopy extends RecommenderBackgroundProcess
         );
 
         $response = $this->client->sendUser(
-            $item,
+            $item[0],
+            $item[1],
             $properties
         );
 
-        // check the response
-        if (is_wp_error($response)) {
-            error_log("[RECOMMENDER] --- Error adding a user.");
-            error_log("[RECOMMENDER] --- " . $response->get_error_message());
-            return $item;
-        }
-
-        $status_code = wp_remote_retrieve_response_code($response);
-        if ($status_code != 201) {
-            $error_body = wp_remote_retrieve_body($response);
-            error_log("[RECOMMENDER] --- Error adding a user.");
-            error_log("[RECOMMENDER] --- ".$error_body);
-            if ($status_code != 400 || $error_body != '{"error":"User is duplicated."}') {
-                error_log("[RECOMMENDER] --- Retring copy user ".$item);
-                return $item;
-            }
-        }
-        return false;
+        return $this->checkResponse($item, $response);
     }
 
     /**

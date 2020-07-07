@@ -92,24 +92,7 @@ class RecommenderBackgroundProductCopy extends RecommenderBackgroundProcess
             $item,
             $properties
         );
-
-        // check the response
-        if (is_wp_error($response)) {
-            error_log(sprintf("[RECOMMENDER] --- Error adding product %s.", $item));
-            error_log("[RECOMMENDER] --- " . $response->get_error_message());
-            return $item;
-        }
-        $status_code = wp_remote_retrieve_response_code($response);
-        if ($status_code != 201) {
-            $error_body = wp_remote_retrieve_body($response);
-            error_log("[RECOMMENDER] --- Error adding a product.");
-            error_log("[RECOMMENDER] --- ".$error_body);
-            if ($status_code != 400 || $error_body != '{"error":"Item is duplicated."}') {
-                error_log("[RECOMMENDER] --- Retring copy product ".$item);
-                return $item;
-            }
-        }
-        return false;
+        return $this->checkResponse($item, $response);
     }
 
     /**

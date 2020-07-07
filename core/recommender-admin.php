@@ -47,6 +47,7 @@ class RecommenderAdmin
     {
         $data = $request->get_body_params();
         update_option(RecommenderPlugin::$RECOMMEND_ON_RELATED_PRODUCTS_OPTION_NAME, isset($data["related"]));
+        update_option(RecommenderPlugin::$RECOMMEND_ON_RELATED_PRODUCTS_SECTION_CLASS_OPTION_NAME, $data["rel_section_class"]);
         return $this->getRedirectToSettingsResponse();
     }
 
@@ -81,10 +82,7 @@ class RecommenderAdmin
     public function settingsPage()
     {
         $data = $this->client->getOverviewStatistics();
-        $num_recommendations = $data["num_recommendations"];
-        $num_clicks = $data["num_clicks"];
-        $num_bought = $data["num_bought"];
-        $sum_bought_value = $data["sum_bought_value"];
+        $recommender_state = $data["state"];
         require_once('templates/settings-page.php');
     }
 

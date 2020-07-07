@@ -34,24 +34,18 @@ class RecommenderBackgroundGeneralInteractionCopy extends RecommenderBackgroundP
         $item_id = $item[1];
         $interaction_type = $item[2];
         $interaction_time = $item[3];
-
-        $properties = array();
-
-        $response = $this->client->sendInteraction($user_id, $item_id, $interaction_type, 1, $interaction_time, $properties);
-
-        // check the response
-        if (is_wp_error($response)) {
-            error_log("[RECOMMENDER] --- Error adding an interaction.");
-            error_log("[RECOMMENDER] --- " . $response->get_error_message());
-            return $item;
+        $anonymous_id = $item[4];
+        if (sizeof($item) == 5) {
+            $interaction_value = 1;
+        }else{
+            $interaction_value = $item[5];
         }
-        
-        if (wp_remote_retrieve_response_code($response) != 201) {
-            error_log("[RECOMMENDER] --- Error adding an interaction.");
-            error_log("[RECOMMENDER] --- ". wp_remote_retrieve_body($response));
-            return $item;
-        }
-        return false;
+
+        $response = $this->client->sendInteraction(
+            $user_id, $item_id, $interaction_type, $interaction_value, $interaction_time, $anonymous_id
+        );
+
+        return $this->checkResponse($item, $response);
     }
 
     /**

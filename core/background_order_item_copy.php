@@ -30,8 +30,10 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
      */
     protected function task($item)
     {
+        $order_id = $item[0];
+        $anonymous_id = $item[1];
 
-        $order_item = new \WC_Order_Item_Product($item);
+        $order_item = new \WC_Order_Item_Product($order_id);
         $order = $order_item->get_order();
 
         if ($order->get_status() != "completed") {
@@ -57,21 +59,12 @@ class RecommenderBackgroundOrderItemCopy extends RecommenderBackgroundProcess
             'item_total_price'    => $order_item->get_total()
         );
 
-        $response = $this->client->sendInteraction($user_id, $order_item->get_product_id(), "purchase", $order_item->get_quantity(), $order->get_date_modified(), "order_item_id_".$item, $properties);
+        $response = $this->client->sendInteraction(
+            $user_id, $order_item->get_product_id(), "purchase", $order_item->get_quantity(),
+            $order->get_date_modified(), $anonymous_id, "order_item_id_".$order_id, $properties
+        );
 
-        // check the response
-        if (is_wp_error($response)) {
-            error_log("[RECOMMENDER] --- Error adding an order.");
-            error_log("[RECOMMENDER] --- " . $response->get_error_message());
-            return $item;
-        }
-        
-        if (wp_remote_retrieve_response_code($response) != 201) {
-            error_log("[RECOMMENDER] --- Error adding an order.");
-            error_log("[RECOMMENDER] --- ". wp_remote_retrieve_body($response));
-            return false;
-        }
-        return false;
+        return $this->checkResponse($item, $response);
     }
 
     /**
