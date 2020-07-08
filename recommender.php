@@ -11,10 +11,11 @@
  * Plugin Name:       recommender
  * Description:       This Plugins recommends stuff to your users
  * Text Domain:       robera-recommender
- * Version:           0.3.1
+ * Version:           0.3.2
  */
 
 namespace Recommender;
+
 
 if (!defined('RECOMMENDER_PLUGIN_PATH')) {
     define('RECOMMENDER_PLUGIN_PATH', dirname(__FILE__).'/');
@@ -36,8 +37,13 @@ $myUpdateChecker = \Puc_v4_Factory::buildUpdateChecker(
 require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-plugin.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-core.php';
 require_once RECOMMENDER_PLUGIN_PATH.'core/recommender-admin.php';
+const SENTRY_URL = 'http://7b81acae221e4fe08d8b5d6c3871281b@sentry.rooberah.co/3';
 
 if (class_exists('\Recommender\RecommenderPlugin') && !isset($TESTING)) {
+    \Sentry\init(['dsn' => SENTRY_URL, 'send_attempts' => 1]);
+    \Sentry\configureScope(function (\Sentry\State\Scope $scope): void {
+        $scope->setTag('site_name', wp_parse_url(get_bloginfo('url'))['host']);
+    });
     $options = get_option('recommender_options');
     $recommender = new RecommenderPlugin($options);
     $core = new RecommenderCore();

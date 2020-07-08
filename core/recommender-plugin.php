@@ -291,7 +291,7 @@ class RecommenderPlugin
     {
         global $wpdb;
 
-        $plugin_options = $wpdb->get_results("SELECT option_name FROM $wpdb->options WHERE option_name LIKE 'recommender_api_%'");
+        $plugin_options = $wpdb->get_results("SELECT option_name FROM $wpdb->options WHERE option_name LIKE 'recommender%'");
 
         foreach ($plugin_options as $option) {
             delete_option($option->option_name);
