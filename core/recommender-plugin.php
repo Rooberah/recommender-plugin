@@ -48,7 +48,7 @@ class RecommenderPlugin
         add_action('wp_enqueue_scripts', array(&$this, 'enqueueScripts'));
         add_action('save_post_product', array(&$this, 'sendNewProduct'), 10, 3);
         add_action('user_register', array(&$this, 'sendNewUser'), 10, 1);
-        add_action('admin_init', array(&$this, 'getAnonymousID'));
+        add_action('wp', array(&$this, 'getAnonymousID'));
         add_action('wp_login', array(&$this, 'loginFunction'));
 
         register_activation_hook(RECOMMENDER_PLUGIN_FILE_PATH, array($this, 'recommenderActivate'));
