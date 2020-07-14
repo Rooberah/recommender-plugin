@@ -11,7 +11,7 @@
  * Plugin Name:       recommender
  * Description:       This Plugins recommends stuff to your users
  * Text Domain:       robera-recommender
- * Version:           0.3.2
+ * Version:           0.3.3
  */
 
 namespace Recommender;
