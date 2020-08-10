@@ -35,8 +35,7 @@ class RecommenderClient
     const TIMEOUT = 3;
     const HTTPVERSION = '1.1';
     const CLIENT_DUPLICATE_STATUS = "CLIENT_DUPLICATE";
-//    const EVENTS_URL = 'http://localhost:8000/recommender/api/core/api/v1/';
-    const EVENTS_URL = 'https://pinkorblue.info/recommender/api/core/api/v1/';
+    const EVENTS_URL = 'https://api.rooberah.co/recommender/api/v1/';
 
     /**
      * Sets client basic information

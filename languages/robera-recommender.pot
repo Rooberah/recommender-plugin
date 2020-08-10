@@ -2,14 +2,14 @@
 # This file is distributed under the same license as the recommender plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: recommender 0.2.0\n"
+"Project-Id-Version: recommender 0.3.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recommender-plugin\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2020-07-04T15:21:00+00:00\n"
+"POT-Creation-Date: 2020-08-06T09:27:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.4.0\n"
 "X-Domain: robera-recommender\n"
@@ -22,82 +22,118 @@ msgstr ""
 msgid "This Plugins recommends stuff to your users"
 msgstr ""
 
-#: core/recommender-admin.php:77
-msgid "Robera Recommender"
+#: core/recommender-admin.php:93
+msgid "Note: The items shown in this block are personalized. It means each person would see a unique content on this block."
+msgstr ""
+
+#: core/recommender-admin.php:107
+msgid "Robera"
 msgstr ""
 
 #: core/templates/settings-page.php:4
-msgid "receiving data"
+msgid "Receiving Data"
 msgstr ""
 
 #: core/templates/settings-page.php:5
-msgid "training"
+msgid "Training the Engine"
 msgstr ""
 
 #: core/templates/settings-page.php:6
-msgid "trained"
+msgid "Ready"
 msgstr ""
 
 #: core/templates/settings-page.php:9
-msgid "Recommendations on item Statistics"
+msgid "We are receiving your data and will work on them ASAP."
 msgstr ""
 
 #: core/templates/settings-page.php:10
+msgid "Data received. We are studying customers’ behavior based on your data."
+msgstr ""
+
+#: core/templates/settings-page.php:11
+msgid "Robera is at your service. Enjoy our recommendation system."
+msgstr ""
+
+#: core/templates/settings-page.php:14
+msgid "Related Items Recommendation's Statistics"
+msgstr ""
+
+#: core/templates/settings-page.php:15
 msgid "Recommendations on user Statistics"
 msgstr ""
 
-#: core/templates/settings-page.php:23
-msgid "The last state of robera"
+#: core/templates/settings-page.php:19
+msgid "Number of related products recommendation blocks shown to users."
 msgstr ""
 
-#: core/templates/settings-page.php:33
-msgid "number of recommendations"
+#: core/templates/settings-page.php:20
+msgid "Number of recommendations on user block shown to users"
 msgstr ""
 
-#: core/templates/settings-page.php:39
+#: core/templates/settings-page.php:35
+msgid "Robera's State"
+msgstr ""
+
+#: core/templates/settings-page.php:37
+msgid "Refresh the page to try again."
+msgstr ""
+
+#: core/templates/settings-page.php:37
+msgid "Connection to Robera failed"
+msgstr ""
+
+#: core/templates/settings-page.php:54
+msgid "Recommendation blocks"
+msgstr ""
+
+#: core/templates/settings-page.php:57
+msgid "Number of Clicks on the items of the Recommendation Block. Click on any item of the block will count."
+msgstr ""
+
+#: core/templates/settings-page.php:60
 msgid "Clicks"
 msgstr ""
 
-#: core/templates/settings-page.php:45
-msgid "Items bought"
-msgstr ""
-
-#: core/templates/settings-page.php:51
-msgid "Bought Value"
-msgstr ""
-
-#: core/templates/settings-page.php:56
-msgid "Robera Recommender Settings"
+#: core/templates/settings-page.php:63
+msgid "Shows the number of bought items from Robera’s recommended items. If a person buys 2 of one product, it will count 2."
 msgstr ""
 
 #: core/templates/settings-page.php:66
-msgid "Use recommendations for related products."
+msgid "Bought Items"
 msgstr ""
 
-#: core/templates/settings-page.php:70
-msgid "Related products section class name"
+#: core/templates/settings-page.php:69
+msgid "Shows the total money earned by recommended products."
 msgstr ""
 
 #: core/templates/settings-page.php:72
-msgid "Class names"
+msgid "Bought Value"
 msgstr ""
 
-#: core/templates/settings-page.php:76
+#: core/templates/settings-page.php:77
+msgid "Robera Recommender Settings"
+msgstr ""
+
+#: core/templates/settings-page.php:85
+msgid "To add personalized recommendation block in any page (including homepage), use Robera recommendation block inside Woocommerce blocks in page editor"
+msgstr ""
+
+#: core/templates/settings-page.php:92
+msgid "Use recommendations for related products."
+msgstr ""
+
+#: core/templates/settings-page.php:96
+msgid "Related products section class name"
+msgstr ""
+
+#: core/templates/settings-page.php:102
 msgid "Submit"
 msgstr ""
 
-#: core/static/block.js:31
-msgid "Product Recommendation for User"
+#: core/static/block.js:120
+msgid "Robera Recommendation"
 msgstr ""
 
-#: core/static/block.js:57
+#: core/static/block.js:146
 msgid "Number of products"
-msgstr ""
-
-#: core/static/block.js:70
-msgid "Here you will have a recommendation block for user with {0} columns. "
-msgstr ""
-
-#: core/static/block.js:73
-msgid "For changing number of columns use sidebar settings."
 msgstr ""

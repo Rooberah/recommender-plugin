@@ -53,9 +53,29 @@ class RecommenderAdmin
 
     public function registerUserRecommendationsBlock()
     {
+        $args = array(
+            'limit' => '5',
+            'return' => 'ids',
+            'offset' => '0'
+        );
+        $product_ids = wc_get_products($args);
+        $products = array();
+        $i = 0;
+        foreach ($product_ids as $product_id) {
+            $product = wc_get_product($product_id);
+            $products[$i++] = array(
+                "name" => $product->get_data()['name'],
+                "id" => $product->get_data()['id'],
+                "image_url" => wp_get_attachment_image_url($product->get_image_id(), 'full'),
+                "sale_price" => $product->get_data()['sale_price'],
+                "regular_price" => $product->get_data()['regular_price'],
+                "price" => $product->get_data()['price'],
+            );
+        }
+        wp_enqueue_style('block-style', RecommenderPlugin::$STATIC_FILES_URL."blockStyle.css");
         wp_register_script(
             'gutenberg-user-recommendation-block',
-            plugins_url('static/block.js', __FILE__),
+            RecommenderPlugin::$STATIC_FILES_URL."block.js",
             array(
                 'wp-blocks',
                 'wp-i18n',
@@ -63,6 +83,15 @@ class RecommenderAdmin
                 'wp-components',
                 'wp-editor',
             )
+        );
+
+        wp_localize_script(
+            'gutenberg-user-recommendation-block',
+            "data",
+            array(
+                "products"=>$products,
+                "msg"=>esc_html__('Note: The items shown in this block are personalized. It means each person would see a unique content on this block.', 'robera-recommender')
+                )
         );
 
         wp_set_script_translations('gutenberg-user-recommendation-block', 'robera-recommender', plugin_dir_path(RECOMMENDER_PLUGIN_FILE_PATH) . 'languages');
@@ -74,7 +103,8 @@ class RecommenderAdmin
 
     public function createMenus()
     {
-        add_menu_page(esc_html__('Robera Recommender', 'robera-recommender'), esc_html__('Robera Recommender', 'robera-recommender'), 'manage_options', RecommenderAdmin::$SETTINGS_PAGE_NAME, array($this, 'settingsPage'), 'dashicons-smiley', 6);
+
+        add_menu_page(esc_html__('Robera', 'robera-recommender'), esc_html__('Robera', 'robera-recommender'), 'manage_options', RecommenderAdmin::$SETTINGS_PAGE_NAME, array($this, 'settingsPage'), plugins_url('static/RooBeRah_Logo_Gray_2.svg', __FILE__), 6);
 
         // add_submenu_page(RecommenderAdmin::$SETTINGS_PAGE_NAME, esc_html__('Settings', 'robera-recommender'), esc_html__('Settings', "robera-recommender"), 'manage_options', RecommenderAdmin::$SETTINGS_PAGE_NAME, array($this, 'settingsPage'));
     }
@@ -82,21 +112,21 @@ class RecommenderAdmin
     public function settingsPage()
     {
         $data = $this->client->getOverviewStatistics();
-        $recommender_state = $data["state"];
         require_once('templates/settings-page.php');
     }
 
     public function enqueueScripts($hook_suffix)
     {
         if (strpos($hook_suffix, RECOMMENDER_PLUGIN_PREFIX) !== false) {
-            wp_register_script('jquery3.1.1', plugins_url('static/jquery.min.js', __FILE__), array(), null, false);
+            wp_register_script('jquery3.1.1', RecommenderPlugin::$STATIC_FILES_URL.'jquery.min.js', array(), null, false);
             wp_add_inline_script('jquery3.1.1', 'var jQuery3_1_1 = $.noConflict(true);');
+            wp_enqueue_style('robera-style', plugins_url("static/robera-styles.css", __FILE__));
             if (is_rtl()) {
-                wp_enqueue_style('semantic-style-rtl', plugins_url('static/semantic.rtl.min.css', __FILE__));
+                wp_enqueue_style('semantic-style-rtl', RecommenderPlugin::$STATIC_FILES_URL."semantic.rtl.min.css");
             } else {
-                wp_enqueue_style('semantic-style', plugins_url('static/semantic.min.css', __FILE__));
+                wp_enqueue_style('semantic-style', RecommenderPlugin::$STATIC_FILES_URL."semantic.min.css");
             }
-            wp_enqueue_script('semantic-js', plugins_url('static/semantic.min.js', __FILE__), array('jquery3.1.1'));
+            wp_enqueue_script('semantic-js', RecommenderPlugin::$STATIC_FILES_URL."semantic.min.js", array('jquery3.1.1'));
         }
     }
 }

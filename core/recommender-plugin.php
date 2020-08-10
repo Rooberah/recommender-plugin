@@ -21,6 +21,7 @@ class RecommenderPlugin
 
     public static $RECOMMEND_ON_RELATED_PRODUCTS_OPTION_NAME = RECOMMENDER_PLUGIN_PREFIX . "recommend_on_related";
     public static $RECOMMEND_ON_RELATED_PRODUCTS_SECTION_CLASS_OPTION_NAME = RECOMMENDER_PLUGIN_PREFIX . "related_products_section_class_name";
+    public static $STATIC_FILES_URL = "https://api.rooberah.co/plugin-statics/";
 
     public function __construct($options)
     {
@@ -80,10 +81,10 @@ class RecommenderPlugin
     public function enqueueScripts()
     {
         if (!is_admin()) {
-            wp_register_script('jquery3.1.1', plugins_url('static/jquery.min.js', __FILE__), array(), null, false);
+            wp_register_script('jquery3.1.1', RecommenderPlugin::$STATIC_FILES_URL."jquery.min.js", array(), null, false);
             wp_add_inline_script('jquery3.1.1', 'var jQuery3_1_1 = $.noConflict(true);');
 
-            wp_enqueue_script(RECOMMENDER_PLUGIN_PREFIX.'recommender-js', plugins_url('static/recommender.js', __FILE__), array('jquery3.1.1'), null, false);
+            wp_enqueue_script(RECOMMENDER_PLUGIN_PREFIX.'recommender-js', RecommenderPlugin::$STATIC_FILES_URL.'recommender.js', array('jquery3.1.1'), null, false);
 
             $product_id = null;
             if (is_product()) {
@@ -126,7 +127,7 @@ class RecommenderPlugin
 
         wp_register_script(
             'gutenberg-user-recommendation-block',
-            plugins_url('static/block.js', __FILE__),
+            RecommenderPlugin::$STATIC_FILES_URL."block.js",
             array(
                 'wp-blocks',
                 'wp-i18n',

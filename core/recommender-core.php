@@ -38,13 +38,14 @@ class RecommenderCore
 
     public function userRecommendations($atts = array())
     {
+        if (is_admin() || strpos($_SERVER['HTTP_REFERER'], 'action=edit') !== false)
+            return 0;
         $num_products = 4;
         if (is_array($atts) && array_key_exists('columns', $atts)) {
             $num_products = $atts['columns'];
             $atts['limit'] = $atts['columns'];
         }
         $ids = $this->client->getRecommendationsForUser(get_current_user_id(), $num_products);
-
         // set up default parameters
         $atts = array_merge(array(
             'limit'        => '4',

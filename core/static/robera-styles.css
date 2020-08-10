@@ -1,0 +1,19 @@
+.ui.steps:after{
+    width: 21em;
+    white-space: normal;
+}
+
+.robera-tooltip::after{
+    width: 21em;
+    white-space: normal !important;
+}
+
+#robera-desc{
+    color: gray;
+    margin-bottom: 0.5em;
+}
+
+@font-face {
+    src: url("IRANSansWeb.woff");
+    font-family: rbr-font-family;
+}

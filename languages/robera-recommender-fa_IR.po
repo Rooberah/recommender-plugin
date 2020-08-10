@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: recommender\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/recommender-"
 "plugin\n"
-"POT-Creation-Date: 2020-07-04T14:47:59+00:00\n"
+"POT-Creation-Date: 2020-08-06T09:27:48+00:00\n"
 "PO-Revision-Date: 2020-03-04 11:08+0330\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,82 +25,175 @@ msgstr "پیشنهاددهنده"
 msgid "This Plugins recommends stuff to your users"
 msgstr "این افزونه به کاربر محصول‌های مرتبط را پیشنهاد می‌دهد."
 
-#: core/recommender-admin.php:77
-msgid "Robera Recommender"
+#: core/recommender-admin.php:93
+msgid ""
+"Note: The items shown in this block are personalized. It means each person "
+"would see a unique content on this block."
+msgstr ""
+"توجه: محصولاتی نمایش داده شده در این نوار به وسیله‌ی روبه‌راه شخصی‌سازی می‌شود. "
+"یعنی هر کاربری متناسب با سلیقه خودش این نوار را خواهد دید و برای همه یکسان "
+"نیست."
+
+#: core/recommender-admin.php:107
+msgid "Robera"
 msgstr "توصیه‌گر روبه‌راه"
 
 #: core/templates/settings-page.php:4
-msgid "receiving data"
-msgstr "در حال دریافت داده"
+msgid "Receiving Data"
+msgstr "در حال دریافت داده‌های فروشگاه"
 
 #: core/templates/settings-page.php:5
-msgid "training"
-msgstr "در حال مدل‌سازی"
+msgid "Training the Engine"
+msgstr "در حال سر در آوردن از رفتار مشتری"
 
 #: core/templates/settings-page.php:6
-msgid "trained"
-msgstr "همه چیز روبه‌راه است :)"
+msgid "Ready"
+msgstr "سامانه روبه‌راهه"
 
 #: core/templates/settings-page.php:9
-msgid "Recommendations on item Statistics"
-msgstr "آمار پیشنهاد محصولات مشابه"
+msgid "We are receiving your data and will work on them ASAP."
+msgstr ""
+"در حال دریافت و ذخیره داده‌های سایت شما هستیم و به زودی روی اون‌ها کار خواهیم "
+"کرد."
 
 #: core/templates/settings-page.php:10
+msgid "Data received. We are studying customers’ behavior based on your data."
+msgstr ""
+"در حال مطالعه و یادگیری رفتار مشتری از روی داده‌های ارسالی از سایت شما هستیم. "
+"داده‌ها رو گذاشتیم بار، فقط باید جا بیفتد!"
+
+#: core/templates/settings-page.php:11
+msgid "Robera is at your service. Enjoy our recommendation system."
+msgstr ""
+"همه چیز روبه‌راهه و نوار توصیه‌گر روبه‌راه آماده سرویس‌دهیه. حالش رو ببرید."
+
+#: core/templates/settings-page.php:14
+msgid "Related Items Recommendation's Statistics"
+msgstr "آمار نوار پیشنهاد محصولات مشابه از طرف روبه‌راه"
+
+#: core/templates/settings-page.php:15
 msgid "Recommendations on user Statistics"
-msgstr "آمار پیشنهاد محصولات به کاربر"
+msgstr "آمار نوار پیشنهاد شخصی‌سازی شده‌ی روبه‌راه به کاربر"
 
-#: core/templates/settings-page.php:23
-msgid "The last state of robera"
-msgstr "آخرین وضعیت روبه‌راه"
+#: core/templates/settings-page.php:19
+msgid "Number of related products recommendation blocks shown to users."
+msgstr "تعداد دفعاتی که روبه‌راه نوار «محصولات مرتبط» را نمایش داده."
 
-#: core/templates/settings-page.php:33
-msgid "number of recommendations"
-msgstr "تعداد نوار محصول‌ها"
+#: core/templates/settings-page.php:20
+msgid "Number of recommendations on user block shown to users"
+msgstr "تعداد دفعاتی که روبه‌راه نوار پیشنهادات به کاربر را نمایش داده."
 
-#: core/templates/settings-page.php:39
+#: core/templates/settings-page.php:35
+msgid "Robera's State"
+msgstr "وضعیت اتصال به روبه‌راه"
+
+#: core/templates/settings-page.php:37
+msgid "Refresh the page to try again."
+msgstr "ارتباط با سرور روبه‌راه برقرار نشد. برای تلاش مجدد صفحه‌را مجددا بارگذاری کنید."
+
+#: core/templates/settings-page.php:37
+msgid "Connection to Robera failed"
+msgstr "اتصال با روبه‌راه برقرار نشد."
+
+#: core/templates/settings-page.php:54
+msgid "Recommendation blocks"
+msgstr "نوار پیشنهاد"
+
+#: core/templates/settings-page.php:57
+msgid ""
+"Number of Clicks on the items of the Recommendation Block. Click on any item "
+"of the block will count."
+msgstr ""
+"تعداد دفعاتی که روی نوار پیشنهادهای روبه‌راه کلیک شده. کلیک روی هر یک از "
+"محصولات نوار، یک مورد موفق محسوب می‌شه."
+
+#: core/templates/settings-page.php:60
 msgid "Clicks"
-msgstr "کلیک‌ها"
+msgstr "کلیک‌"
 
-#: core/templates/settings-page.php:45
-msgid "Items bought"
-msgstr "قلم خریداری شده"
+#: core/templates/settings-page.php:63
+msgid ""
+"Shows the number of bought items from Robera’s recommended items. If a "
+"person buys 2 of one product, it will count 2."
+msgstr ""
+"تعداد کالاهای خریداری شده‌از طریق کلیک روی نوار پیشنهاد روبه‌راه نمایش داده "
+"می‌شود. اگر کاربر در یک سفارش از یک کالا، دو تا خریده باشه، دو بار در این بخش "
+"حساب می‌شه."
 
-#: core/templates/settings-page.php:51
+#: core/templates/settings-page.php:66
+msgid "Bought Items"
+msgstr "ارزش خرید انجام شده"
+
+#: core/templates/settings-page.php:69
+msgid "Shows the total money earned by recommended products."
+msgstr "مجموع تومانی خریدهای انجام شده از کانال نوار پیشنهاد محصولات روبه‌راه"
+
+#: core/templates/settings-page.php:72
 msgid "Bought Value"
 msgstr "ارزش خرید انجام شده"
 
-#: core/templates/settings-page.php:56
+#: core/templates/settings-page.php:77
 msgid "Robera Recommender Settings"
-msgstr "تنظیمات پیشنهاددهندهٔ روبه‌راه"
+msgstr "تنظیمات توصیه‌گر روبه‌راه"
 
-#: core/templates/settings-page.php:66
+#: core/templates/settings-page.php:85
+msgid ""
+"To add personalized recommendation block in any page (including homepage), "
+"use Robera recommendation block inside Woocommerce blocks in page editor"
+msgstr ""
+"برای اضافه کردن نوار پیشنهادات به هر کاربر در صفحه‌ی دلخواه، از بلاک توصیه‌گر "
+"روبه‌راه بین بلاک‌های ووکامرس در صفحه‌ی ویرایش صفحات استفاده کنید."
+
+#: core/templates/settings-page.php:92
 msgid "Use recommendations for related products."
-msgstr "برای محصولات مشابه از پیشنهادهای هوشمند استفاده کن."
+msgstr "برای محصولات مشابه از پیشنهادهای هوشمند  روبه‌راه استفاده کن."
 
-#: core/templates/settings-page.php:70
+#: core/templates/settings-page.php:96
 msgid "Related products section class name"
 msgstr "نام کلاس (css) بخش محصولات مشابه"
 
-#: core/templates/settings-page.php:72
-msgid "Class names"
-msgstr "نام کلاس‌ها"
-
-#: core/templates/settings-page.php:76
+#: core/templates/settings-page.php:102
 msgid "Submit"
 msgstr "ذخیره"
 
-#: core/static/block.js:31
-msgid "Product Recommendation for User"
-msgstr "پیشنهاد محصولات به کاربر"
+#: core/static/block.js:120
+msgid "Robera Recommendation"
+msgstr "نوار پیشنهاد روبه‌راه"
 
-#: core/static/block.js:57
+#: core/static/block.js:146
 msgid "Number of products"
 msgstr "تعداد محصول‌ها"
 
-#: core/static/block.js:70
-msgid "Here you will have a recommendation block for user with {0} columns. "
-msgstr "اینجا محصول‌های پیشنهادی به کاربر در {0} ستون قرار می‌گیرد."
+#~ msgid "Product Recommendation for User"
+#~ msgstr "پیشنهاد محصولات به کاربر"
 
-#: core/static/block.js:73
-msgid "For changing number of columns use sidebar settings."
-msgstr "برای تغییر تعداد ستون‌ها از نوار تنظیمات کنار استفاده کنید."
+#~ msgid "Robera Recommender"
+#~ msgstr "توصیه‌گر روبه‌راه"
+
+#~ msgid "related products"
+#~ msgstr " مشابه"
+
+#~ msgid "training"
+#~ msgstr "در حال مدل‌سازی"
+
+#~ msgid "trained"
+#~ msgstr "همه چیز روبه‌راه است :)"
+
+#~ msgid "The last state of robera"
+#~ msgstr "آخرین وضعیت روبه‌راه"
+
+#~ msgid "number of recommendations"
+#~ msgstr "تعداد نوار محصول‌ها"
+
+#~ msgid "Items bought"
+#~ msgstr "قلم خریداری شده"
+
+#~ msgid "Class names"
+#~ msgstr "نام کلاس‌ها"
+
+#~ msgid ""
+#~ "Here you will have a recommendation block for user with {0} columns. "
+#~ msgstr "اینجا محصول‌های پیشنهادی به کاربر در {0} ستون قرار می‌گیرد."
+
+#~ msgid "For changing number of columns use sidebar settings."
+#~ msgstr "برای تغییر تعداد ستون‌ها از نوار تنظیمات کنار استفاده کنید."
