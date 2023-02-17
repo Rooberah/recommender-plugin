@@ -3,7 +3,7 @@
     "description": "Recommender plugin",
     "license": "GPL-3.0",
     "require" : {
-        "firebase/php-jwt": "^5.2",
+        "firebase/php-jwt": "^6.0",
         "sentry/sdk": "2.1.0"
     },
     "require-dev": {
